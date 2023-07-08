@@ -1,0 +1,82 @@
+{
+  "project_info": {
+    "project_number": "1007812916712",
+    "project_id": "allowance-app-a2963",
+    "storage_bucket": "allowance-app-a2963.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1007812916712:android:a2626aca09956ae09ce05d",
+        "android_client_info": {
+          "package_name": "nakajimamasao.appstudio.allowance"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1007812916712-i72mbm2ggbeimpe0lg63e04jp878fnj1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCctyKoS2gGuu9cqq80tDGwtBT2k_K663g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1007812916712-i72mbm2ggbeimpe0lg63e04jp878fnj1.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1007812916712-6l1hp2gmng1jm3dih66qmt8b6p5gp9nf.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "nakajimamasao.appstudio.allowanceapp"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1007812916712:android:5ea44633f7d1a0769ce05d",
+        "android_client_info": {
+          "package_name": "nakajimamasao.appstudio.allowancetracker"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1007812916712-i72mbm2ggbeimpe0lg63e04jp878fnj1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCctyKoS2gGuu9cqq80tDGwtBT2k_K663g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1007812916712-i72mbm2ggbeimpe0lg63e04jp878fnj1.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1007812916712-6l1hp2gmng1jm3dih66qmt8b6p5gp9nf.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "nakajimamasao.appstudio.allowanceapp"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
