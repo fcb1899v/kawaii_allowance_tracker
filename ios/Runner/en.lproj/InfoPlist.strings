@@ -1,0 +1,10 @@
+/* 
+  InfoPlist.strings
+  Runner
+
+  Created by 中島正雄 on 2023/07/01.
+  
+*/
+
+CFBundleDisplayName = "Sweet Easy Pocket";
+NSUserTrackingUsageDescription = "This identifier will be used to deliver personalized ads to you.";

@@ -1,0 +1,10 @@
+/* 
+  InfoPlist.strings
+  Runner
+
+  Created by 中島正雄 on 2023/07/01.
+  
+*/
+
+CFBundleDisplayName = "かわいいおこづかいちょう";
+NSUserTrackingUsageDescription = "許可をすることで、あなたの好みに合った広告が表示されます。";
