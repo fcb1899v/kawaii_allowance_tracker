@@ -46,9 +46,16 @@ void showFailedSnackBar(BuildContext context, String title, String? message) =>
 
 loginTitleText(BuildContext context) =>
     Container(
+      alignment: Alignment.center,
       margin: EdgeInsets.only(bottom: context.loginTitleMarginBottom()),
       child: Text(context.appTitle(),
-        style: customAccentTextStyle(context, context.loginTitleSize(), false),
+        style: TextStyle(
+          color: whiteColor,
+          fontSize: context.loginTitleSize(),
+          fontFamily: context.customAccentFont(),
+          fontWeight: FontWeight.bold,
+          shadows: [customShadow(false, shadowOffset)],
+        )
       )
     );
 

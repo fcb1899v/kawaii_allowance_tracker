@@ -299,8 +299,8 @@ class LoginPage extends HookConsumerWidget {
         ),
         body: Container(
           decoration: backgroundDecoration(),
-          child: Center(
-            child: Column(children: [
+          child: Column(
+            children: [
               Spacer(flex: 1),
               loginTitleText(context),
               ClipRRect(
@@ -326,9 +326,9 @@ class LoginPage extends HookConsumerWidget {
               if (!isSignUp.value) GestureDetector(child: forgetPassText(context),
                 onTap: () => passwordResetDialog()
               ),
-              Spacer(flex: 2),
+              Spacer(flex: 3),
               AdBannerWidget(),
-            ]),
+            ]
           ),
         ),
       ),

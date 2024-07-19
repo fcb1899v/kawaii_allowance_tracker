@@ -1,7 +1,7 @@
 {
   "@@locale": "en",
 
-  "appTitle": "Sweet Easy Pocket", "@appTitle": {"description": "App name"},
+  "appTitle": "Kawaii Allowance Tracker", "@appTitle": {"description": "App name"},
   "thisApp": "A simple app for managing your allowance.", "@thisApp": {"description": ""},
 
   "list": "List", "@list": {"description": "Bottom label of list"},
@@ -35,7 +35,6 @@
   "modifyItemTitle": "Modify the item", "@modifyItemTitle": {"description": "modify item title"},
   "modifyAmntTitle": "Modify the amount", "@modifyAmntTitle": {"description": "modify amount title"},
 
-  "title": "Sweet Easy Pocket", "@title": {"description": "Title label"},
   "s": "'s", "@s": {"description": "Title label"},
   "tracker": "Allowance Tracker", "@tracker": {"description": "Title label"},
   "name": "Your name", "@name": {"description": "Setting your name"},
@@ -84,8 +83,8 @@
   "cantSendVerifiedEmail": "Can't send verified email", "@cantSentVerifiedEmail": {"description": "Can't send verified email message"},
   "sentPassResetEmail": "Sent password reset email", "@sentPassResetEmail": {"description": "Sent password reset email"},
   "cantSendPassResetEmail": "Can't send password reset email", "@cantSentPassResetEmail": {"description": "Can't send password reset mail message"},"useWithoutLogin": "Use without logging in", "@useWithoutLogin": {"description": "Without login button"},
-  "forgotPass": "Forgot password?", "@forgotpass": {"description": "Forgot password button"},
-  "passwordReset": "Password reset", "@passwordreset": {"description": "Password reset title"},
+  "forgotPass": "Forgot password?", "@forgotPass": {"description": "Forgot password button"},
+  "passwordReset": "Password reset", "@passwordReset": {"description": "Password reset title"},
   "invalidEmail": "The email address is badly formatted", "@invalidEmail": {"description": "Invalid email"},
   "wrongPassword": "The password is wrong", "@wrongPassword": {"description": "Wrong password"},
   "userNotFound": "The email address is not registered", "@userNotFound": {"description": "User not found"},

@@ -47,7 +47,7 @@ extension ContextExt on BuildContext {
   //Drawer
   double drawerWidth() => maxWidth() * drawerWidthRate;
   double drawerTitleHeightRate(String name) =>
-      (drawerTitle(name) == title()) ? drawerTitleNoNameHeightRate: drawerTitleExistNameHeightRate;
+      (drawerTitle(name) == appTitle()) ? drawerTitleNoNameHeightRate: drawerTitleExistNameHeightRate;
   double drawerTitleHeight(String name) => maxWidth() * drawerTitleHeightRate(name);
   double drawerTitleBorderRadius() => maxWidth() * drawerTitleBorderRadiusRate;
   double drawerTitleFontSize() => maxWidth() * drawerTitleFontSizeRate;
@@ -113,7 +113,7 @@ extension ContextExt on BuildContext {
   double chartBottomReservedSize() => width() * chartBottomReservedSizeRate;
   double chartAxisFontSize() => width() * chartAxisFontSizeRate;
   //Login
-  double loginTitleSize() => maxWidth() * (lang() == "ja" ? loginJaTitleSizeRate: loginEnTitleSizeRate);
+  double loginTitleSize() => maxWidth() * loginTitleSizeRate;
   double loginIconSize() => maxWidth() * loginIconSizeRate;
   double loginFontSize() => maxWidth() * loginFontSizeRate;
   double loginMessageSize() => maxWidth() * loginMessageSizeRate;
@@ -145,7 +145,6 @@ extension ContextExt on BuildContext {
   // Localize String
   String appTitle() => AppLocalizations.of(this)!.appTitle;
   String thisApp() => AppLocalizations.of(this)!.thisApp;
-  String title() => AppLocalizations.of(this)!.title;
   String s() => AppLocalizations.of(this)!.s;
   String tracker() => AppLocalizations.of(this)!.tracker;
   String notSet() => AppLocalizations.of(this)!.notSet;
@@ -239,19 +238,16 @@ extension ContextExt on BuildContext {
   String confirmDeleteAccount() => AppLocalizations.of(this)!.confirmDeleteAccount;
 
   //Common
-  String orNotSet(String text) =>
-      (text == "") ? notSet(): text;
-  String judgeText(String judge) =>
-      (judge == "ok") ? ok(): (judge == "no") ? no(): canceled();
+  String orNotSet(String text) => (text == "") ? notSet(): text;
+  String judgeText(String judge) => (judge == "ok") ? ok(): (judge == "no") ? no(): canceled();
+
   //AppBar
-  String appBarTitleText(bool isSelectSummary) =>
-      (isSelectSummary) ? list():summary();
-  String popupMenuText(bool isSelectSummary) =>
-      (isSelectSummary) ? tryLogout(): tryLogin();
+  String appBarTitleText(bool isSelectSummary) => (isSelectSummary) ? list(): summary();
+  String popupMenuText(bool isSelectSummary) => (isSelectSummary) ? tryLogout(): tryLogin();
+
   //Drawer
   String drawerTitle(String name) =>
-      (name.isEmpty || name == notSet()) ? title():
-      (lang() == "ja") ? "$name${s()}\n\n${tracker()}":
+      (name.isEmpty || name == notSet()) ? appTitle():
       "$name${s()}\n${tracker()}";
   String drawerAlertTitle(String input) =>
       (input == "unit") ? settingUnitTitle():
@@ -475,7 +471,6 @@ extension StringExt on String {
   int toMonth() => this.split("/")[0].removeZero();
   int toYear() => this.split("/")[2].toInt(2023);
   int toDateInt() => toYear() * 10000 + toMonth() * 100 + toDay();
-  int toCurrentIndex() => 12 * (DateTime.now().year - toYear()) + DateTime.now().month - toMonth();
 
   DateTime toThisDate(int index) =>
       DateTime(toYear() + (index + toMonth()) ~/ 12, (toMonth() + index) % 12, toDay());

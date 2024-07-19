@@ -1,9 +1,12 @@
 import 'dart:convert';
+import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:app_tracking_transparency/app_tracking_transparency.dart';
+import 'package:flutter/widgets.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'extension.dart';
@@ -12,24 +15,21 @@ import 'login_widget.dart';
 import 'widget.dart';
 
 ///App Tracking Transparency
-initPlugin(BuildContext context) async {
+initATTPlugin(BuildContext context) async {
   final status = await AppTrackingTransparency.trackingAuthorizationStatus;
   if (status == TrackingStatus.notDetermined && context.mounted) {
     await showCupertinoDialog(context: context,
-        builder: (context) {
-          return CupertinoAlertDialog(
-            title: alertTitleText(context, context.appTitle()),
-            content: Text(context.thisApp()),
-            actions: [
-              CupertinoDialogAction(
-                child: alertJudgeButtonText(context, "ok", purpleColor),
-                onPressed: () => context.popPage(),
-              )
-            ],
-          );
-        }
+      builder: (context) => CupertinoAlertDialog(
+        title: alertTitleText(context, context.appTitle()),
+        content: Text(context.thisApp()),
+        actions: [
+          CupertinoDialogAction(
+            child: alertJudgeButtonText(context, "ok", purpleColor),
+            onPressed: () => context.popPage(),
+          )
+        ],
+      ),
     );
-    // }
     await Future.delayed(const Duration(milliseconds: 200));
     await AppTrackingTransparency.requestTrackingAuthorization();
   }
@@ -63,7 +63,11 @@ ThemeData selectDateTheme(BuildContext context, bool isSpend) =>
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
           foregroundColor: transpBlackColor,
-          textStyle: alertJudgeButtonTextStyle(context, null),
+          textStyle: TextStyle(
+            fontSize: context.alertFontSize(),
+            fontFamily: "defaultFont",
+            fontWeight: FontWeight.bold,
+          )
         ),
       ),
     );
@@ -90,7 +94,6 @@ setDataFireStore(BuildContext context, SharedPreferences prefs, bool isLogin, bo
     }
   }
 }
-
 
 setStringFirestore(BuildContext context, SharedPreferences prefs, bool isLogin, bool isFirstSaveFinish, String key, String setValue) async {
   final currentDateTime = DateTime.now().toDateTimeInt();
@@ -160,6 +163,7 @@ Widget appBarTitle(BuildContext context, bool isSelectSummary) =>
       children: [
         Icon(isSelectSummary ? summaryIcon: listIcon,
           size: appBarIconSize,
+          color: whiteColor,
         ),
         Container(
           margin: EdgeInsets.symmetric(horizontal: appBarTitleIconSpace),
@@ -200,7 +204,19 @@ Widget drawerHeader(BuildContext context, String name) =>
         child: Container(
           alignment: Alignment.center,
           child: Text(context.drawerTitle(name),
-            style: customAccentTextStyle(context, context.drawerTitleFontSize(),true),
+            style: TextStyle(
+              color: whiteColor,
+              fontSize: context.drawerTitleFontSize(),
+              fontFamily: context.customAccentFont(),
+              fontWeight: FontWeight.bold,
+              shadows: [
+                Shadow(
+                  color: transpBlackColor,
+                  blurRadius: shadowBlur,
+                  offset: Offset(shadowOffset, shadowOffset)
+                ),
+              ],
+            ),
             textAlign: TextAlign.center,
           ),
         ),
@@ -215,31 +231,31 @@ TextStyle selectUnitTextStyle(BuildContext context) =>
       fontWeight: FontWeight.bold,
     );
 
-TextStyle drawerTitleTextStyle(BuildContext context) =>
-    TextStyle(
-      color: transpBlackColor,
-      fontSize: context.drawerMenuListFontSize(),
-      fontFamily: context.customJaFont(),
-      fontWeight: context.customWeight(),
-    );
-
-TextStyle drawerSubTitleTextStyle(BuildContext context, bool isUnit) =>
-    TextStyle(
-      color: transpLightBlackColor,
-      fontSize: context.drawerMenuListFontSize(),
-      fontFamily: isUnit ? "Roboto": context.customJaFont(),
-      fontWeight: context.customWeight(),
-    );
-
 menuNameListTile(BuildContext context, String name) =>
     Container(
       margin: EdgeInsets.all(context.drawerMenuListMargin()),
       child: ListTile(
-        leading: Icon(nameIcon, size: context.drawerMenuListIconSize()),
-        title: Text(context.name(), style: drawerTitleTextStyle(context)),
+        leading: Icon(nameIcon,
+          size: context.drawerMenuListIconSize()
+        ),
+        title: Text(context.name(),
+          style: TextStyle(
+            color: transpBlackColor,
+            fontSize: context.drawerMenuListFontSize(),
+            fontFamily: context.customJaFont(),
+            fontWeight: context.customWeight(),
+          )
+        ),
         subtitle: Container(
           margin: EdgeInsets.only(top: context.drawerMenuListSubTitleMarginTop()),
-          child:Text(context.orNotSet(name), style: drawerSubTitleTextStyle(context, false)),
+          child:Text(context.orNotSet(name),
+            style: TextStyle(
+              color: transpLightBlackColor,
+              fontSize: context.drawerMenuListFontSize(),
+              fontFamily: context.customJaFont(),
+              fontWeight: context.customWeight(),
+            )
+          ),
         ),
         trailing: Icon(forwardIcon),
       ),
@@ -250,10 +266,24 @@ menuUnitListTile(BuildContext context, String unit) =>
       margin: EdgeInsets.all(context.drawerMenuListMargin()),
       child: ListTile(
         leading: Icon(unitIcon, size: context.drawerMenuListIconSize()),
-        title: Text(context.unit(), style: drawerTitleTextStyle(context)),
+        title: Text(context.unit(),
+          style: TextStyle(
+            color: transpBlackColor,
+            fontSize: context.drawerMenuListFontSize(),
+            fontFamily: context.customJaFont(),
+            fontWeight: context.customWeight(),
+          )
+        ),
         subtitle: Container(
           margin: EdgeInsets.only(top: context.drawerMenuListSubTitleMarginTop()),
-          child:Text(unit, style: drawerSubTitleTextStyle(context, true)),
+          child:Text(unit,
+            style: TextStyle(
+              color: transpLightBlackColor,
+              fontSize: context.drawerMenuListFontSize(),
+              fontFamily: "Roboto",
+              fontWeight: context.customWeight(),
+            )
+          ),
         ),
         trailing: Icon(forwardIcon),
       ),
@@ -265,13 +295,32 @@ menuAssetsListTile(BuildContext context, double initialAssets, String unit, bool
       child: ListTile(
         leading: Icon(amntIcon, size: context.drawerMenuListIconSize()),
         title: Text(isInitial ? context.initialAssets(): context.targetAssets(),
-          style: drawerTitleTextStyle(context)
+          style: TextStyle(
+            color: transpBlackColor,
+            fontSize: context.drawerMenuListFontSize(),
+            fontFamily: context.customJaFont(),
+            fontWeight: context.customWeight(),
+          )
         ),
         subtitle: Container(
           margin: EdgeInsets.only(top: context.drawerMenuListSubTitleMarginTop()),
           child: Row(children: [
-            Text(unit, style: drawerSubTitleTextStyle(context, true)),
-            Text(initialAssets.stringAssets(context, unit), style: drawerSubTitleTextStyle(context, false)),
+            Text(unit,
+              style: TextStyle(
+                color: transpLightBlackColor,
+                fontSize: context.drawerMenuListFontSize(),
+                fontFamily: "Roboto",
+                fontWeight: context.customWeight(),
+              )
+            ),
+            Text(initialAssets.stringAssets(context, unit),
+              style: TextStyle(
+                color: transpLightBlackColor,
+                fontSize: context.drawerMenuListFontSize(),
+                fontFamily: context.customJaFont(),
+                fontWeight: context.customWeight(),
+              )
+            ),
           ])
         ),
         trailing: Icon(forwardIcon),
@@ -286,12 +335,22 @@ menuLoginTile(BuildContext context, bool isLogin, bool isSaveData) =>
           size: context.drawerMenuListIconSize()
         ),
         title: Text(context.login(),
-          style: drawerTitleTextStyle(context),
+          style: TextStyle(
+            color: transpBlackColor,
+            fontSize: context.drawerMenuListFontSize(),
+            fontFamily: context.customJaFont(),
+            fontWeight: context.customWeight(),
+          )
         ),
         subtitle: Container(
           margin: EdgeInsets.only(top: context.drawerMenuListSubTitleMarginTop()),
           child: Text(context.drawerLoginTitle(isLogin, isSaveData),
-            style: drawerSubTitleTextStyle(context, false),
+            style: TextStyle(
+              color: transpLightBlackColor,
+              fontSize: context.drawerMenuListFontSize(),
+              fontFamily: context.customJaFont(),
+              fontWeight: context.customWeight(),
+            ),
           ),
         ),
         trailing: Icon(forwardIcon),
@@ -303,7 +362,14 @@ menuDeleteAccountListTile(BuildContext context, String name) =>
       margin: EdgeInsets.all(context.drawerMenuListMargin()),
       child: ListTile(
         leading: Icon(nameIcon, size: context.drawerMenuListIconSize()),
-        title: Text(context.deleteAccount(), style: drawerTitleTextStyle(context)),
+        title: Text(context.deleteAccount(),
+          style: TextStyle(
+            color: transpBlackColor,
+            fontSize: context.drawerMenuListFontSize(),
+            fontFamily: context.customJaFont(),
+            fontWeight: context.customWeight(),
+          )
+        ),
         trailing: Icon(forwardIcon),
       ),
     );
@@ -313,10 +379,24 @@ menuStartDateListTile(BuildContext context, String startDate) =>
       margin: EdgeInsets.all(context.drawerMenuListMargin()),
       child: ListTile(
         leading: Icon(dateIcon, size: context.drawerMenuListIconSize()),
-        title: Text(context.startDate(), style: drawerTitleTextStyle(context)),
+        title: Text(context.startDate(),
+          style: TextStyle(
+            color: transpBlackColor,
+            fontSize: context.drawerMenuListFontSize(),
+            fontFamily: context.customJaFont(),
+            fontWeight: context.customWeight(),
+          )
+        ),
         subtitle: Container(
           margin: EdgeInsets.only(top: context.drawerMenuListSubTitleMarginTop()),
-          child:Text(context.orNotSet(startDate), style: drawerSubTitleTextStyle(context, false)),
+          child:Text(context.orNotSet(startDate),
+            style: TextStyle(
+              color: transpLightBlackColor,
+              fontSize: context.drawerMenuListFontSize(),
+              fontFamily: context.customJaFont(),
+              fontWeight: context.customWeight(),
+            )
+          ),
         ),
       ),
     );
@@ -344,10 +424,6 @@ plusMinusImage(BuildContext context, bool isPlus, Color color) =>
       ),
     );
 
-//Month Year Text
-Text monthYearText(BuildContext context, String monthYear) =>
-    Text(monthYear, style: enAccentTextStyle(context, context.monthYearFontSize()));
-
 //Balance View
 balanceView(BuildContext context, double balance, String unit) =>
     Container(
@@ -355,10 +431,26 @@ balanceView(BuildContext context, double balance, String unit) =>
       child: Row(mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(context.balance(), style: customAccentTextStyle(context, context.balanceFontSize(), false)),
-          Text(unit, style: unitAccentTextStyle(context, context.balanceUnitSize())),
+          Text(unit,
+            style: TextStyle(
+              color: whiteColor,
+              fontSize: context.balanceUnitSize(),
+              fontFamily: "Roboto",
+              fontWeight: FontWeight.bold,
+              shadows: [customShadow(false, shadowOffset)],
+            ),
+          ),
           Container(
             margin: EdgeInsets.only(bottom: context.balanceMoneyShiftSize()),
-            child: Text(balance.stringBalance(unit), style: enAccentTextStyle(context, context.balanceMoneySize())),
+            child: Text(balance.stringBalance(unit),
+              style: TextStyle(
+                color: whiteColor,
+                fontSize: context.balanceMoneySize(),
+                fontFamily: "enAccent",
+                fontWeight: FontWeight.normal,
+                shadows: [customShadow(false, shadowOffset)],
+              )
+            ),
           ),
         ],
       ),
@@ -501,3 +593,130 @@ summaryButtonImage(BuildContext context) =>
         shadows: [customShadow(true, shadowOffset)],
       ),
     );
+
+///Chart
+LineTouchData chartTouchData() =>
+    LineTouchData(
+      touchTooltipData: LineTouchTooltipData(
+        getTooltipColor: (_) => whiteColor,
+      ),
+    );
+
+LineChartBarData chartLineData(BuildContext context, List<FlSpot> flSpotList, Color color) =>
+    LineChartBarData(
+      spots: flSpotList,
+      color: color,
+      barWidth: context.chartBarWidth(),
+      dotData:  FlDotData(
+        show: true,
+        getDotPainter: (spot, percent, barData, index) => FlDotCirclePainter(
+          radius: context.chartDotWidth(),
+          color: color,
+          strokeColor: whiteColor,
+        ),
+      ),
+    );
+
+FlGridData chartGridData(BuildContext context) =>
+    FlGridData(
+      show: true,
+      drawHorizontalLine: true,
+      drawVerticalLine: true,
+      getDrawingHorizontalLine: (_) => FlLine(
+        color: whiteColor,
+        strokeWidth: context.chartHorizontalBorderWidth(),
+        dashArray: chartBorderDashArray,
+      ),
+      getDrawingVerticalLine: (_) => FlLine(
+        color: whiteColor,
+        strokeWidth: context.chartVerticalBorderWidth(),
+        dashArray: chartBorderDashArray,
+      ),
+    );
+
+FlBorderData chartBorderData(BuildContext context) =>
+    FlBorderData(
+      show: true,
+      border: Border.all(
+        color: whiteColor,
+        width: context.chartBorderWidth()
+      )
+    );
+
+SideTitles bottomAxisNumber(BuildContext context) =>
+    SideTitles(
+      showTitles: true,
+      interval: 1,
+      reservedSize: context.chartBottomReservedSize(),
+      getTitlesWidget: (value, meta) => SideTitleWidget(
+        axisSide: meta.axisSide,
+        child: Text(meta.formattedValue,
+          style: defaultAccentTextStyle(context, context.chartAxisFontSize()),
+        ),
+      )
+    );
+
+Widget bottomAxisTitleText(BuildContext context) =>
+    Container(
+      margin: EdgeInsets.only(left: context.chartBottomMarginLeft()),
+      child: Text(context.month(),
+        style: defaultAccentTextStyle(context, context.chartBottomFontSize())
+      ),
+    );
+
+SideTitles leftAxisNumber(BuildContext context, List<double> list) =>
+    SideTitles(
+      showTitles: true,
+      interval: list.reduce(max).maxChartY(null) / 5,
+      reservedSize: context.chartLeftReservedSize(),
+      getTitlesWidget: (value, meta) => SideTitleWidget(
+        axisSide: meta.axisSide,
+        child: Text(meta.formattedValue,
+          style: defaultAccentTextStyle(context, context.chartAxisFontSize()),
+        ),
+      )
+    );
+
+FlTitlesData flTitlesData(BuildContext context, List<double> list, String unit, Color color) => FlTitlesData(
+  show: true,
+  topTitles: AxisTitles(
+    axisNameSize: context.chartTopAxisNameSize(),
+    axisNameWidget: chartTitleText(context, unit, color),
+  ),
+  bottomTitles: AxisTitles(
+    sideTitles: bottomAxisNumber(context),
+    axisNameSize: context.chartBottomAxisNameSize(),
+    axisNameWidget: bottomAxisTitleText(context),
+  ),
+  leftTitles: AxisTitles(sideTitles: leftAxisNumber(context, list)),
+  rightTitles: AxisTitles(axisNameWidget: SizedBox(width: 0)),
+);
+
+
+Widget chartTitleText(BuildContext context, String unit, Color color) =>
+    Container(
+      margin: EdgeInsets.only(left: context.chartTopMarginLeft()),
+      child: Row(mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text("[$unit] ",
+            style: TextStyle(
+              color: whiteColor,
+              fontSize: context.chartTitleFontSize(),
+              fontFamily: "Roboto",
+              fontWeight: FontWeight.bold,
+              shadows: [customShadow(false, shadowOffset)],
+            ),
+          ),
+          Text("${context.chartTitle(color)} ",
+            style: TextStyle(
+              color: whiteColor,
+              fontSize:context.chartTitleFontSize(),
+              fontFamily: context.customAccentFont(),
+              fontWeight: FontWeight.bold,
+              shadows: [customShadow(false, shadowOffset)],
+            )
+          ),
+        ]
+      ),
+    );
+
