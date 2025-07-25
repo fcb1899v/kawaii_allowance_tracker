@@ -1,7 +1,7 @@
 name: sweet_easy_pocket
 description: helps_manage_your_allowance_easily
 publish_to: 'none'
-version: 1.0.6+6
+version: 1.0.7+7
 
 environment:
   sdk: '>=2.18.0 <4.0.0'
@@ -11,31 +11,31 @@ dependencies:
     sdk: flutter
 
   # Firebase
-  firebase_auth: ^5.5.3
-  firebase_core: ^3.13.0
-  firebase_analytics: ^11.4.5
-  cloud_firestore: ^5.6.7
+  firebase_auth: ^5.7.0
+  firebase_core: ^3.15.2
+  firebase_analytics: ^11.6.0
+  cloud_firestore: ^5.6.12
   #Login
   #  google_sign_in: ^6.1.4
   #  sign_in_with_apple: ^5.0.0
   # iOS icons
   cupertino_icons: ^1.0.8
-  flutter_launcher_icons: ^0.14.3
+  flutter_launcher_icons: ^0.14.4
   # Shared Preference
-  shared_preferences: ^2.5.2
+  shared_preferences: ^2.5.3
   # Floating Button
   flutter_speed_dial: ^7.0.0
   # Bar indicator
-  percent_indicator: ^4.2.4
+  percent_indicator: ^4.2.5
   # Graph
   fl_chart: ^0.68.0
   #env
   flutter_dotenv: ^5.2.1
   # Admob
-  google_mobile_ads: ^5.3.1
+  google_mobile_ads: ^6.0.0
   app_tracking_transparency: ^2.0.6+1
   #MVVM
-  hooks_riverpod: ^2.5.1
+  hooks_riverpod: ^2.6.1
   flutter_hooks: ^0.21.2
   #Splash
   flutter_native_splash: ^2.4.6
@@ -47,7 +47,7 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^5.0.0
+  flutter_lints: ^6.0.0
 
 # App Icon
 flutter_icons:
