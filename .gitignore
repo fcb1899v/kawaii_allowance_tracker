@@ -50,9 +50,14 @@ app.*.map.json
 build/
 ios/Pods/
 ios/Flutter/.last_build_id
+# Lock files (except pubspec.lock)
 *.lock
-pubspec.lock
-pubspec.yaml
+!pubspec.lock
 /assets/.env
+# Source files (not needed for distribution)
+assets/icon/appIcon.xcf
+# Firebase configuration files (contain sensitive information)
+android/app/google-services.json
+lib/firebase_options.dart
 Podfile
 *.plist

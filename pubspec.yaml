@@ -1,0 +1,85 @@
+name: sweet_easy_pocket
+description: helps_manage_your_allowance_easily
+publish_to: 'none'
+version: 1.0.6+6
+
+environment:
+  sdk: '>=2.18.0 <4.0.0'
+  flutter: '>=3.3.0'
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # Firebase
+  firebase_auth: ^5.5.3
+  firebase_core: ^3.13.0
+  firebase_analytics: ^11.4.5
+  cloud_firestore: ^5.6.7
+  #Login
+  #  google_sign_in: ^6.1.4
+  #  sign_in_with_apple: ^5.0.0
+  # iOS icons
+  cupertino_icons: ^1.0.8
+  flutter_launcher_icons: ^0.14.3
+  # Shared Preference
+  shared_preferences: ^2.5.2
+  # Floating Button
+  flutter_speed_dial: ^7.0.0
+  # Bar indicator
+  percent_indicator: ^4.2.4
+  # Graph
+  fl_chart: ^0.68.0
+  #env
+  flutter_dotenv: ^5.2.1
+  # Admob
+  google_mobile_ads: ^5.3.1
+  app_tracking_transparency: ^2.0.6+1
+  #MVVM
+  hooks_riverpod: ^2.5.1
+  flutter_hooks: ^0.21.2
+  #Splash
+  flutter_native_splash: ^2.4.6
+  # Localize
+  flutter_localizations:
+    sdk: flutter
+  intl: ^0.20.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+# App Icon
+flutter_icons:
+  image_path: "assets/icon/ios_icon.png"
+  android: true
+  ios: true
+  adaptive_icon_background: "#ffffff"
+  adaptive_icon_foreground: "assets/icon/android_icon.png"
+
+# App Splash
+flutter_native_splash:
+  image: "assets/icon/splash_icon.png"
+  color: "#8040ff"
+  fullscreen: true
+  ios_content_mode: scaleAspectFit
+  android_12:
+    icon_background_color: "#8040ff"
+    image: "assets/icon/splash_icon.png"
+
+flutter:
+  # Localize
+  generate: true
+  uses-material-design: true
+  assets:
+    - assets/.env
+  fonts:
+    - family: defaultFont
+      fonts:
+        - asset: assets/fonts/yasashisagothic.otf
+    - family: enAccent
+      fonts:
+        - asset: assets/fonts/pacifico.ttf
+    - family: jaAccent
+      fonts:
+        - asset: assets/fonts/riipopkkr.otf
