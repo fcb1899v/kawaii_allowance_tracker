@@ -6,5 +6,5 @@
   
 */
 
-CFBundleDisplayName = "Sweet Easy Pocket";
-NSUserTrackingUsageDescription = "This identifier will be used to deliver personalized ads to you.";
+CFBundleDisplayName = "Kawaii Allowance Tracker";
+NSUserTrackingUsageDescription = "This app is privately developed and is supported solely by advertising revenue. If you agree, please tap 'Allow Tracking'. You will be able to see ads that match your preferences.";

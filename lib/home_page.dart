@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
@@ -20,7 +21,7 @@ import 'constant.dart';
 import 'widget.dart';
 
 class MyHomePage extends HookConsumerWidget {
-  const MyHomePage({Key? key}) : super(key: key);
+  const MyHomePage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -61,8 +62,8 @@ class MyHomePage extends HookConsumerWidget {
     final inputName = useState("");
     final inputInitial = useState(0.0);
     final isInitialInput = useState(false);
-    final inputTarget = useState(0.0);
-    final isTargetInput = useState(false);
+    // final inputTarget = useState(0.0);
+    // final isTargetInput = useState(false);
     final inputDay = useState(0);
     final inputItem = useState("");
     final inputAmount = useState(0.0);
@@ -87,10 +88,10 @@ class MyHomePage extends HookConsumerWidget {
         FirebaseAuth auth = FirebaseAuth.instance;
         try {
           await auth.signOut().then((_) => resetLoginState(prefs, auth));
-          showSuccessSnackBar(context, context.logoutSuccess());
+          if (context.mounted) showSuccessSnackBar(context, context.logoutSuccess());
           isLoading.value = false;
         } on FirebaseAuthException catch (_) {
-          showSuccessSnackBar(context, context.logoutFailed());
+          if (context.mounted) showSuccessSnackBar(context, context.logoutFailed());
           isLoading.value = false;
         }
       }
@@ -100,19 +101,19 @@ class MyHomePage extends HookConsumerWidget {
     deleteAccount(SharedPreferences prefs) async {
       if (!isLoading.value) {
         isLoading.value = true;
-        FirebaseAuth auth = await FirebaseAuth.instance;
+        FirebaseAuth auth = FirebaseAuth.instance;
         try {
-          User? user = await auth.currentUser;
-          "user: ${user}".debugPrint();
+          User? user = auth.currentUser;
+          "user: $user".debugPrint();
           await user?.delete();
-          await resetLoginState(prefs, auth);
-          showSuccessSnackBar(context, context.deleteAccountSuccess());
+          resetLoginState(prefs, auth);
+          if (context.mounted) showSuccessSnackBar(context, context.deleteAccountSuccess());
           isLoading.value = false;
-          context.popPage();
+          if (context.mounted) context.popPage();
         } catch (e) {
-          showSuccessSnackBar(context, context.deleteAccountFailed());
+          if (context.mounted) showSuccessSnackBar(context, context.deleteAccountFailed());
           isLoading.value = false;
-          context.popPage();
+          if (context.mounted) context.popPage();
         }
       }
     }
@@ -120,20 +121,20 @@ class MyHomePage extends HookConsumerWidget {
     ///Set allowance data in local storage
     setAllowanceData(prefs) async {
       await setAllowanceDataFirestore(context, prefs, isLogin.value, isAllowData.value[0], allowanceDate.value, allowanceItem.value, allowanceAmnt.value);
-      maxIndex.value = await allowanceAmnt.value.calcMaxIndex();
-      listNumber.value = await allowanceAmnt.value.calcListNumber();
-      percent.value = await allowanceAmnt.value.calcPercent(maxIndex.value);
-      balance.value = await allowanceAmnt.value.calcBalance(maxIndex.value);
-      spends.value = await allowanceAmnt.value.calcSpends(maxIndex.value);
-      assets.value = await balance.value.calcAssets(maxIndex.value, initialAssets.value);
+      maxIndex.value = allowanceAmnt.value.calcMaxIndex();
+      listNumber.value = allowanceAmnt.value.calcListNumber();
+      percent.value = allowanceAmnt.value.calcPercent(maxIndex.value);
+      balance.value = allowanceAmnt.value.calcBalance(maxIndex.value);
+      spends.value = allowanceAmnt.value.calcSpends(maxIndex.value);
+      assets.value = balance.value.calcAssets(maxIndex.value, initialAssets.value);
     }
 
     ///Set all allowance data in firestore
     setAllDataFirestore(SharedPreferences prefs) async {
       if (isLogin.value && isAllowData.value[0]) {
         try {
-          User? user = await FirebaseAuth.instance.currentUser;
-          DocumentReference docRef = await FirebaseFirestore.instance.collection('users').doc(user!.uid);
+          User? user = FirebaseAuth.instance.currentUser;
+          DocumentReference docRef = FirebaseFirestore.instance.collection('users').doc(user!.uid);
           await docRef.set({"startDateKey": startDate.value}, SetOptions(merge: true));
           await docRef.set({"nameKey": name.value}, SetOptions(merge: true));
           await docRef.set({"unitKey": unit.value}, SetOptions(merge: true));
@@ -146,11 +147,11 @@ class MyHomePage extends HookConsumerWidget {
           isAllowData.value = [true, true];
           await "serverSaveDateTimeKey".setSharedPrefInt(prefs, currentDateTime);
           await "isAllowGetServerDataKey".setSharedPrefBool(prefs, isAllowData.value[1]);
-          showSuccessSnackBar(context, context.storeDataSuccess());
+          if (context.mounted) showSuccessSnackBar(context, context.storeDataSuccess());
           isLoading.value = false;
         } on FirebaseException catch (e) {
           '${e.code}: $e'.debugPrint();
-          showFailedSnackBar(context, context.storeDataFailed(), null);
+          if (context.mounted) showFailedSnackBar(context, context.storeDataFailed(), null);
           isLoading.value = false;
         }
       }
@@ -160,40 +161,40 @@ class MyHomePage extends HookConsumerWidget {
     getAllDataFirestore(SharedPreferences prefs) async {
       if (isLogin.value && isAllowData.value[1]) {
         try {
-          User? user = await FirebaseAuth.instance.currentUser;
-          DocumentReference docRef = await FirebaseFirestore.instance.collection('users').doc(user!.uid);
+          User? user = FirebaseAuth.instance.currentUser;
+          DocumentReference docRef = FirebaseFirestore.instance.collection('users').doc(user!.uid);
           DocumentSnapshot snapshot = await docRef.get();
-          Map<String, dynamic>? data = await snapshot.data() as Map<String, dynamic>?;
+          Map<String, dynamic>? data = snapshot.data() as Map<String, dynamic>?;
           if (data != null) {
             "data: $data".debugPrint();
-            name.value = await data.getFirestoreString(prefs, "nameKey", "");
-            unit.value = await data.getFirestoreString(prefs, "unitKey", context.defaultUnit());
-            initialAssets.value = await data.getFirestoreDouble(prefs, "initialAssetsKey", 0.0);
-            targetAssets.value = await data.getFirestoreDouble(prefs, "targetAssetsKey", 0.0);
-            startDate.value = await data.getFirestoreString(prefs, "startDateKey", currentDate);
-            index.value = await startDate.value.toCurrentIndex();
-            allowanceDate.value = await data.getFirestoreDate(prefs);
-            allowanceItem.value = await data.getFirestoreItem(prefs);
-            allowanceAmnt.value = await data.getFirestoreAmnt(prefs);
-            maxIndex.value = await allowanceAmnt.value.calcMaxIndex();
-            listNumber.value = await allowanceAmnt.value.calcListNumber();
-            percent.value = await allowanceAmnt.value.calcPercent(maxIndex.value);
-            balance.value = await allowanceAmnt.value.calcBalance(maxIndex.value);
-            spends.value = await allowanceAmnt.value.calcSpends(maxIndex.value);
-            assets.value = await balance.value.calcAssets(maxIndex.value, initialAssets.value);
-            showSuccessSnackBar(context, context.getDataSuccess());
-            localSaveDateTime.value = await currentDateTime;
+            name.value = data.getFirestoreString(prefs, "nameKey", "");
+            unit.value = (context.mounted) ? data.getFirestoreString(prefs, "unitKey", context.defaultUnit()): "\$";
+            initialAssets.value = data.getFirestoreDouble(prefs, "initialAssetsKey", 0.0);
+            targetAssets.value = data.getFirestoreDouble(prefs, "targetAssetsKey", 0.0);
+            startDate.value = data.getFirestoreString(prefs, "startDateKey", currentDate);
+            allowanceDate.value = data.getFirestoreDate(prefs);
+            allowanceItem.value = data.getFirestoreItem(prefs);
+            allowanceAmnt.value = data.getFirestoreAmnt(prefs);
+            maxIndex.value = allowanceAmnt.value.calcMaxIndex();
+            index.value = maxIndex.value;
+            listNumber.value = allowanceAmnt.value.calcListNumber();
+            percent.value = allowanceAmnt.value.calcPercent(maxIndex.value);
+            balance.value = allowanceAmnt.value.calcBalance(maxIndex.value);
+            spends.value = allowanceAmnt.value.calcSpends(maxIndex.value);
+            assets.value = balance.value.calcAssets(maxIndex.value, initialAssets.value);
+            if (context.mounted) showSuccessSnackBar(context, context.getDataSuccess());
+            localSaveDateTime.value = currentDateTime;
             isAllowData.value = [true, true];
             await "localSaveDateTimeKey".setSharedPrefInt(prefs, currentDateTime);
             await "isAllowSaveLocalDataKey".setSharedPrefBool(prefs, isAllowData.value[0]);
             isLoading.value = false;
           } else {
-            showFailedSnackBar(context, context.noDataAvailable(), null);
+            if (context.mounted) showFailedSnackBar(context, context.noDataAvailable(), null);
             isLoading.value = false;
           }
         } on FirebaseException catch (e) {
           '${e.code}: $e'.debugPrint();
-          showFailedSnackBar(context, context.getDataFailed(), null);
+          if (context.mounted) showFailedSnackBar(context, context.getDataFailed(), null);
           isLoading.value = false;
         }
       }
@@ -202,22 +203,22 @@ class MyHomePage extends HookConsumerWidget {
     ///Get all allowance data from local storage
     getAllowanceData(prefs) async {
       name.value = await "nameKey".getSharedPrefString(prefs, "");
-      unit.value = await "unitKey".getSharedPrefString(prefs, context.defaultUnit());
+      unit.value = (context.mounted) ? await "unitKey".getSharedPrefString(prefs, context.defaultUnit()): "\$";
       initialAssets.value = await "initialAssetsKey".getSharedPrefDouble(prefs, 0.0);
       targetAssets.value = await "targetAssetsKey".getSharedPrefDouble(prefs, 0.0);
       startDate.value = await "startDateKey".getSharedPrefString(prefs, currentDate);
-      index.value = await startDate.value.toCurrentIndex();
-      allowanceDate.value = await "dateKey".getSharedPrefString(prefs, "[[0]]").toString().toListListDate();
-      allowanceItem.value = await "itemKey".getSharedPrefString(prefs, "[[""]]").toString().toListListItem();
-      allowanceAmnt.value = await "amntKey".getSharedPrefString(prefs, "[[0.0]]").toString().toListListAmnt();
-      maxIndex.value = await allowanceAmnt.value.calcMaxIndex();
-      listNumber.value = await allowanceAmnt.value.calcListNumber();
-      percent.value = await allowanceAmnt.value.calcPercent(maxIndex.value);
-      balance.value = await allowanceAmnt.value.calcBalance(maxIndex.value);
-      spends.value = await allowanceAmnt.value.calcSpends(maxIndex.value);
-      assets.value = await balance.value.calcAssets(maxIndex.value, initialAssets.value);
+      allowanceDate.value = "dateKey".getSharedPrefString(prefs, "[[0]]").toString().toListListDate();
+      allowanceItem.value = "itemKey".getSharedPrefString(prefs, "[[""]]").toString().toListListItem();
+      allowanceAmnt.value = "amntKey".getSharedPrefString(prefs, "[[0.0]]").toString().toListListAmnt();
+      maxIndex.value = allowanceAmnt.value.calcMaxIndex();
+      index.value = maxIndex.value;
+      listNumber.value = allowanceAmnt.value.calcListNumber();
+      percent.value = allowanceAmnt.value.calcPercent(maxIndex.value);
+      balance.value = allowanceAmnt.value.calcBalance(maxIndex.value);
+      spends.value = allowanceAmnt.value.calcSpends(maxIndex.value);
+      assets.value = balance.value.calcAssets(maxIndex.value, initialAssets.value);
       "toSetFirestore: ${isAllowData.value[0] && !isAllowData.value[1]}".debugPrint();
-      await (isAllowData.value[0] && !isAllowData.value[1]) ? setAllDataFirestore(prefs): {isLoading.value = false};
+      (isAllowData.value[0] && !isAllowData.value[1]) ? await setAllDataFirestore(prefs): {isLoading.value = false};
     }
 
     ///Get allowance data for initialization
@@ -241,7 +242,7 @@ class MyHomePage extends HookConsumerWidget {
         (!isAllowData.value[0] && isAllowData.value[1]) ? getAllDataFirestore(prefs): getAllowanceData(prefs);
       } catch (e) {
         "Error: $e".debugPrint();
-        showFailedSnackBar(context, context.getDataFailed(), null);
+        if (context.mounted) showFailedSnackBar(context, context.getDataFailed(), null);
         isLoading.value = false;
       }
     }
@@ -257,19 +258,20 @@ class MyHomePage extends HookConsumerWidget {
     }
 
     ///Delete Allowance Data
-    deleteAllowance(int id) {
+    deleteAllowance(int id) async {
       final int i = index.value;
       allowanceDate.value[i].removeAt(id);
       allowanceItem.value[i].removeAt(id);
       allowanceAmnt.value[i].removeAt(id);
       sortAllowanceList();
-      initializeSharedPreferences().then((prefs) => setAllowanceData(prefs));
+      await initializeSharedPreferences().then((prefs) async => await setAllowanceData(prefs));
     }
 
     ///Change Summary
     changeSummary() {
       isSummary.value = !isSummary.value;
-      index.value = startDate.value.toCurrentIndex();
+      maxIndex.value = allowanceAmnt.value.calcMaxIndex();
+      index.value = maxIndex.value;
       "isSummary: ${isSummary.value}".debugPrint();
     }
 
@@ -283,7 +285,7 @@ class MyHomePage extends HookConsumerWidget {
         allowanceDate.value.add([0]);
         allowanceItem.value.add([""]);
         allowanceAmnt.value.add([0.0]);
-        initializeSharedPreferences().then((prefs) => setAllowanceData(prefs));
+        await initializeSharedPreferences().then((prefs) async => await setAllowanceData(prefs));
       }
     }
 
@@ -298,11 +300,11 @@ class MyHomePage extends HookConsumerWidget {
       if (inputName.value.isNotEmpty) {
         name.value = inputName.value;
         inputName.value = "";
-        initializeSharedPreferences().then((prefs) =>
-          setStringFirestore(context, prefs, isLogin.value, isAllowData.value[0], "nameKey", name.value),
+        await initializeSharedPreferences().then((prefs) async =>
+          await setStringFirestore(context, prefs, isLogin.value, isAllowData.value[0], "nameKey", name.value),
         );
       }
-      context.popPage();
+      if (context.mounted) context.popPage();
     }
 
     ///Set Money Unit
@@ -310,15 +312,15 @@ class MyHomePage extends HookConsumerWidget {
       "value: $value".debugPrint();
       if (value.isNotEmpty) {
         unit.value = value;
-        initializeSharedPreferences().then((prefs) =>
-          setStringFirestore(context, prefs, isLogin.value, isAllowData.value[0], "unitKey", unit.value),
+        await initializeSharedPreferences().then((prefs) async =>
+          await setStringFirestore(context, prefs, isLogin.value, isAllowData.value[0], "unitKey", unit.value),
         );
       }
-      context.popPage();
+      if (context.mounted) context.popPage();
     }
 
     ///On Change Initial Assets
-    onChangeInitialAssets(String value) {
+    onChangeInitialAssets(String value) async {
       "value: $value".debugPrint();
       isInput.value = value.setIsInput(false);
       inputInitial.value = value.setInputAmount(isInput.value, false, unit.value);
@@ -330,33 +332,33 @@ class MyHomePage extends HookConsumerWidget {
       if (isInitialInput.value) {
         initialAssets.value = inputInitial.value;
         inputInitial.value = 0;
-        initializeSharedPreferences().then((prefs) {
-          setDoubleFirestore(context, prefs, isLogin.value, isAllowData.value[0], "initialAssetsKey", initialAssets.value);
-          setAllowanceData(prefs);
+        await initializeSharedPreferences().then((prefs) async {
+          await setDoubleFirestore(context, prefs, isLogin.value, isAllowData.value[0], "initialAssetsKey", initialAssets.value);
+          await setAllowanceData(prefs);
         });
       }
-      context.popPage();
+      if (context.mounted) context.popPage();
     }
 
     ///On Change Target Assets
-    onChangeTargetAssets(String value) {
-      "value: $value".debugPrint();
-      isInput.value = value.setIsInput(false);
-      inputTarget.value = value.setInputAmount(isInput.value, false, unit.value);
-      isTargetInput.value = value.setIsAmountInput(isInput.value);
-    }
+    // onChangeTargetAssets(String value) {
+    //   "value: $value".debugPrint();
+    //   isInput.value = value.setIsInput(false);
+    //   inputTarget.value = value.setInputAmount(isInput.value, false, unit.value);
+    //   isTargetInput.value = value.setIsAmountInput(isInput.value);
+    // }
 
     ///Set Target Assets
-    setTargetAssets() async {
-      if (isTargetInput.value) {
-        targetAssets.value = inputTarget.value;
-        inputTarget.value = 0;
-        initializeSharedPreferences().then((prefs) =>
-          setDoubleFirestore(context, prefs, isLogin.value, isAllowData.value[0], "targetAssetsKey", targetAssets.value),
-        );
-      }
-      context.popPage();
-    }
+    // setTargetAssets() async {
+    //   if (isTargetInput.value) {
+    //     targetAssets.value = inputTarget.value;
+    //     inputTarget.value = 0;
+    //     initializeSharedPreferences().then((prefs) =>
+    //       setDoubleFirestore(context, prefs, isLogin.value, isAllowData.value[0], "targetAssetsKey", targetAssets.value),
+    //     );
+    //   }
+    //   context.popPage();
+    // }
 
     ///Select Date
     selectDate(DateTime? picked, int id) async {
@@ -364,16 +366,16 @@ class MyHomePage extends HookConsumerWidget {
         "picked: $picked.day".debugPrint();
         allowanceDate.value[index.value][id] = picked.day;
         sortAllowanceList();
-        initializeSharedPreferences().then((prefs) => setAllowanceData(prefs));
+        await initializeSharedPreferences().then((prefs) async => await setAllowanceData(prefs));
       }
     }
 
     ///on Change Item
-    onChangeItem(String value, bool isSpend) {
+    onChangeItem(String value, bool isSpend) async {
       "value: $value".debugPrint();
       isInput.value = value.isNotEmpty;
-      inputItem.value =  value.setInputItem(context, isInput.value, isSpend);
-      isItemInput.value = value.setIsItemInput(isInput.value, isSpend);
+      inputItem.value = value.setInputItem(context, isInput.value, isSpend);
+      isItemInput.value = value.setIsItemInput(isInput.value);
     }
 
     ///Rewrite Allowance Item
@@ -381,13 +383,13 @@ class MyHomePage extends HookConsumerWidget {
       if (isItemInput.value) {
         allowanceItem.value[index.value][id] = inputItem.value;
         inputItem.value = "";
-        initializeSharedPreferences().then((prefs) => setAllowanceData(prefs));
+        await initializeSharedPreferences().then((prefs) async => await setAllowanceData(prefs));
       }
-      context.popPage();
+      if (context.mounted) context.popPage();
     }
 
     ///On Change Amount
-    onChangeAmount(String value, bool isSpend) {
+    onChangeAmount(String value, bool isSpend) async {
       "value: $value".debugPrint();
       isInput.value = value.setIsInput(false);
       inputAmount.value = value.setInputAmount(isInput.value, isSpend, unit.value);
@@ -395,17 +397,17 @@ class MyHomePage extends HookConsumerWidget {
     }
 
     ///Change Allowance Amount
-    rewriteAllowanceAmnt(int id) {
+    rewriteAllowanceAmnt(int id) async {
       if (isAmountInput.value) {
         allowanceAmnt.value[index.value][id] = inputAmount.value;
         inputAmount.value = 0.0;
-        initializeSharedPreferences().then((prefs) => setAllowanceData(prefs));
+        await initializeSharedPreferences().then((prefs) async => await setAllowanceData(prefs));
       }
-      context.popPage();
+      if (context.mounted) context.popPage();
     }
 
     ///Set new Allowance or Spend
-    setNewAllowance(bool isSpend) {
+    setNewAllowance(bool isSpend) async {
       if (isDayInput.value && isItemInput.value && isAmountInput.value) {
         allowanceDate.value[index.value].insert(0, inputDay.value);
         allowanceItem.value[index.value].insert(0, inputItem.value);
@@ -414,201 +416,203 @@ class MyHomePage extends HookConsumerWidget {
         inputDay.value = 0;
         inputItem.value = "";
         inputAmount.value = 0.0;
-        initializeSharedPreferences().then((prefs) => setAllowanceData(prefs));
+        await initializeSharedPreferences().then((prefs) async => await setAllowanceData(prefs));
       }
-      context.popPage();
+      if (context.mounted) context.popPage();
     }
 
     ///Set User Name Dialog
-    nameFieldDialog() async =>
-        await showDialog(context: context,
-          builder: (context) => AlertDialog(
-            title: alertTitleText(context, context.drawerAlertTitle("name")),
-            content: TextField(
-              controller: TextEditingController(),
-              decoration: drawerAlertDecoration(context, "name"),
-              keyboardType: TextInputType.name,
-              cursorWidth: alertCursorWidth,
-              cursorHeight: alertCursorHeight,
-              cursorColor: "name".drawerAlertColor(),
-              maxLength: context.inputNameMaxLength(),
-              maxLengthEnforcement: MaxLengthEnforcement.enforced,
-              autofocus: true,
-              onChanged: (value) => onChangeName(value),
-            ),
-            actions: [
-              TextButton(child: alertJudgeButtonText(context, "cancel", transpBlackColor),
-                onPressed: () => context.popPage()
-              ),
-              TextButton(child: alertJudgeButtonText(context, "ok", purpleColor),
-                onPressed: () => setName()
-              ),
-            ],
+    nameFieldDialog() => showDialog(context: context,
+      builder: (context) => AlertDialog(
+        title: alertTitleText(context, context.drawerAlertTitle("name")),
+        content: TextField(
+          controller: TextEditingController(),
+          decoration: drawerAlertDecoration(context, "name"),
+          keyboardType: TextInputType.name,
+          cursorWidth: alertCursorWidth,
+          cursorHeight: alertCursorHeight,
+          cursorColor: "name".drawerAlertColor(),
+          maxLength: context.inputNameMaxLength(),
+          maxLengthEnforcement: MaxLengthEnforcement.enforced,
+          autofocus: true,
+          onChanged: (value) => onChangeName(value),
+        ),
+        actions: [
+          TextButton(
+            child: alertJudgeButtonText(context, "cancel", transpBlackColor),
+            onPressed: () => context.popPage()
           ),
-        );
+          TextButton(
+            child: alertJudgeButtonText(context, "ok", purpleColor),
+            onPressed: () => setName()
+          ),
+        ],
+      ),
+    );
 
     ///Set Money Unit Dialog
-    unitDropDownList() async =>
-        await showDialog(context: context,
-          builder: (context) => AlertDialog(
-            title: alertTitleText(context, context.drawerAlertTitle("unit")),
-            content: StatefulBuilder(
-              builder: (BuildContext context, StateSetter setState) => Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [DropdownButton(
-                  style: selectUnitTextStyle(context),
-                  value: unit.value,
-                  itemHeight: max(kMinInteractiveDimension, drawerUnitItemHeight),
-                  items: context.unitList().map((value) => DropdownMenuItem(value: value, child: Text(value))).toList(),
-                  onChanged: (value) => setUnit(value!),
-                )],
-              ),
-            ),
+    unitDropDownList() => showDialog(context: context,
+      builder: (context) => AlertDialog(
+        title: alertTitleText(context, context.drawerAlertTitle("unit")),
+        content: StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) => Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [DropdownButton(
+              style: selectUnitTextStyle(context),
+              value: unit.value,
+              itemHeight: max(kMinInteractiveDimension, drawerUnitItemHeight),
+              items: context.unitList().map((value) => DropdownMenuItem(value: value, child: Text(value))).toList(),
+              onChanged: (value) => setUnit(value!),
+            )],
           ),
-        );
+        ),
+      ),
+    );
 
     ///Set Initial Assets Dialog
-    setInitialAssetsDialog() async =>
-        await showDialog(context: context,
-          builder: (context) => AlertDialog(
-            title: alertTitleText(context, context.drawerAlertTitle("initialAssets")),
-            content: TextField(
-              controller: TextEditingController(),
+    setInitialAssetsDialog() => showDialog(context: context,
+      builder: (context) => AlertDialog(
+        title: alertTitleText(context, context.drawerAlertTitle("initialAssets")),
+        content: TextField(
+          controller: TextEditingController(),
+          style: textFieldTextStyle(context),
+          decoration: drawerAlertDecoration(context, "initialAssets"),
+          keyboardType: TextInputType.numberWithOptions(decimal: true),
+          inputFormatters: inputMoneyFormat,
+          cursorWidth: alertCursorWidth,
+          cursorHeight: alertCursorHeight,
+          cursorColor: "initialAssets".drawerAlertColor(),
+          maxLength: inputMoneyMaxLength,
+          maxLengthEnforcement: MaxLengthEnforcement.enforced,
+          autofocus: true,
+          onChanged: (value) => onChangeInitialAssets(value),
+        ),
+        actions: [
+          TextButton(
+            child: alertJudgeButtonText(context, "cancel", transpBlackColor),
+            onPressed: () => context.popPage()
+          ),
+          TextButton(
+            child: alertJudgeButtonText(context, "ok", pinkColor),
+            onPressed: () => setInitialAssets()
+          ),
+        ],
+      ),
+    );
+
+    ///Set Target Assets Dialog
+    // setTargetAssetsDialog() => showDialog(context: context,
+    //   builder: (context) => AlertDialog(
+    //     title: alertTitleText(context, context.drawerAlertTitle("targetAssets")),
+    //     content: TextField(
+    //       controller: TextEditingController(),
+    //       style: textFieldTextStyle(context),
+    //       decoration: drawerAlertDecoration(context, "targetAssets"),
+    //       keyboardType: TextInputType.numberWithOptions(decimal: true),
+    //       inputFormatters: inputMoneyFormat,
+    //       cursorWidth: alertCursorWidth,
+    //           cursorColor: "targetAssets".drawerAlertColor(),
+    //           maxLength: inputMoneyMaxLength,
+    //           maxLengthEnforcement: MaxLengthEnforcement.enforced,
+    //           autofocus: true,
+    //           onChanged: (value) => onChangeTargetAssets(value),
+    //         ),
+    //         actions: [
+    //           TextButton(child: alertJudgeButtonText(context, "cancel", transpBlackColor),
+    //             onPressed: () => context.popPage()
+    //           ),
+    //           TextButton(child: alertJudgeButtonText(context, "ok", purpleColor),
+    //             onPressed: () => setTargetAssets()
+    //           ),
+    //         ],
+    //       ),
+    //     );
+
+    ///Set Initial Assets Dialog
+    deleteAccountDialog() => showDialog(context: context,
+      builder: (context) => CupertinoAlertDialog(
+        title: alertTitleText(context, context.tryDeleteAccount()),
+        content: Text(context.confirmDeleteAccount()),
+        actions: [
+          TextButton(
+            child: alertJudgeButtonText(context, "cancel", purpleColor),
+            onPressed: () => context.popPage()
+          ),
+          TextButton(
+            child: alertJudgeButtonText(context, "ok", transpBlackColor),
+            onPressed: () => initializeSharedPreferences().then((prefs) => deleteAccount(prefs)),
+          ),
+        ],
+      ),
+    );
+
+    ///Spend and Allowance Input TextField Dialog
+    allowanceInputDialog(bool isSpend) => showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: alertTitleText(context, context.speedDialTitle(isSpend)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
               style: textFieldTextStyle(context),
-              decoration: drawerAlertDecoration(context, "initialAssets"),
+              controller: TextEditingController(),
+              decoration: spreadSheetAlertDecoration(context, "item", isSpend),
+              cursorWidth: alertCursorWidth,
+              cursorHeight: alertCursorHeight,
+              cursorColor: isSpend.speedDialColor(),
+              maxLength: context.inputItemMaxLength(),
+              maxLengthEnforcement: MaxLengthEnforcement.enforced,
+              autofocus: true,
+              onChanged: (value) => onChangeItem(value, isSpend),
+            ),
+            TextField(
+              style: textFieldTextStyle(context),
+              controller: TextEditingController(),
+              decoration: spreadSheetAlertDecoration(context, "amnt", isSpend),
               keyboardType: TextInputType.numberWithOptions(decimal: true),
               inputFormatters: inputMoneyFormat,
               cursorWidth: alertCursorWidth,
               cursorHeight: alertCursorHeight,
-              cursorColor: "initialAssets".drawerAlertColor(),
+              cursorColor: isSpend.speedDialColor(),
               maxLength: inputMoneyMaxLength,
               maxLengthEnforcement: MaxLengthEnforcement.enforced,
-              autofocus: true,
-              onChanged: (value) => onChangeInitialAssets(value),
+              autofocus: false,
+              onChanged: (String value) => onChangeAmount(value, isSpend),
             ),
-            actions: [
-              TextButton(child: alertJudgeButtonText(context, "cancel", transpBlackColor),
-                onPressed: () => context.popPage()
-              ),
-              TextButton(child: alertJudgeButtonText(context, "ok", pinkColor),
-                onPressed: () => setInitialAssets()
-              ),
-            ],
+          ],
+        ),
+        actions: [
+          TextButton(
+            child: alertJudgeButtonText(context, "cancel", transpBlackColor),
+            onPressed: () => context.popPage()
           ),
-        );
-
-    ///Set Target Assets Dialog
-    setTargetAssetsDialog() async =>
-        await showDialog(context: context,
-          builder: (context) => AlertDialog(
-            title: alertTitleText(context, context.drawerAlertTitle("targetAssets")),
-            content: TextField(
-              controller: TextEditingController(),
-              style: textFieldTextStyle(context),
-              decoration: drawerAlertDecoration(context, "targetAssets"),
-              keyboardType: TextInputType.numberWithOptions(decimal: true),
-              inputFormatters: inputMoneyFormat,
-              cursorWidth: alertCursorWidth,
-              cursorColor: "targetAssets".drawerAlertColor(),
-              maxLength: inputMoneyMaxLength,
-              maxLengthEnforcement: MaxLengthEnforcement.enforced,
-              autofocus: true,
-              onChanged: (value) => onChangeTargetAssets(value),
-            ),
-            actions: [
-              TextButton(child: alertJudgeButtonText(context, "cancel", transpBlackColor),
-                onPressed: () => context.popPage()
-              ),
-              TextButton(child: alertJudgeButtonText(context, "ok", purpleColor),
-                onPressed: () => setTargetAssets()
-              ),
-            ],
+          TextButton(
+            child: alertJudgeButtonText(context, "ok", isSpend.speedDialColor()),
+            onPressed: () => setNewAllowance(isSpend)
           ),
-        );
-
-    ///Set Initial Assets Dialog
-    deleteAccountDialog() async =>
-        await showDialog(context: context,
-          builder: (context) => CupertinoAlertDialog(
-            title: alertTitleText(context, context.tryDeleteAccount()),
-            content: Text(context.confirmDeleteAccount()),
-            actions: [
-              TextButton(child: alertJudgeButtonText(context, "cancel", purpleColor),
-                  onPressed: () => context.popPage()
-              ),
-              TextButton(child: alertJudgeButtonText(context, "ok", transpBlackColor),
-                  onPressed: () => initializeSharedPreferences().then((prefs) => deleteAccount(prefs)),
-              ),
-            ],
-          ),
-        );
-
-    ///Spend and Allowance Input TextField Dialog
-    allowanceInputDialog(bool isSpend) async =>
-        await showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: alertTitleText(context, context.speedDialTitle(isSpend)),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  style: textFieldTextStyle(context),
-                  controller: TextEditingController(),
-                  decoration: spreadSheetAlertDecoration(context, "item", isSpend),
-                  cursorWidth: alertCursorWidth,
-                  cursorHeight: alertCursorHeight,
-                  cursorColor: isSpend.speedDialColor(),
-                  maxLength: context.inputItemMaxLength(),
-                  maxLengthEnforcement: MaxLengthEnforcement.enforced,
-                  autofocus: true,
-                  onChanged: (value) => onChangeItem(value, isSpend),
-                ),
-                TextField(
-                  style: textFieldTextStyle(context),
-                  controller: TextEditingController(),
-                  decoration: spreadSheetAlertDecoration(context, "amnt", isSpend),
-                  keyboardType: TextInputType.numberWithOptions(decimal: true),
-                  inputFormatters: inputMoneyFormat,
-                  cursorWidth: alertCursorWidth,
-                  cursorHeight: alertCursorHeight,
-                  cursorColor: isSpend.speedDialColor(),
-                  maxLength: inputMoneyMaxLength,
-                  maxLengthEnforcement: MaxLengthEnforcement.enforced,
-                  autofocus: false,
-                  onChanged: (String value) => onChangeAmount(value, isSpend),
-                ),
-              ],
-            ),
-            actions: [
-              TextButton(child: alertJudgeButtonText(context, "cancel", transpBlackColor),
-                onPressed: () => context.popPage()
-              ),
-              TextButton(child: alertJudgeButtonText(context, "ok", isSpend.speedDialColor()),
-                onPressed: () => setNewAllowance(isSpend)
-              ),
-            ],
-          ),
-        );
+        ],
+      ),
+    );
 
     ///Picked Day to Allowance Input Dialog
-    pickedDayToAllowanceInput(DateTime? picked, bool isSpend) {
+    pickedDayToAllowanceInput(DateTime? picked, bool isSpend) async {
       if (picked != null) {
         "picked: ${picked.day}".debugPrint();
         isInput.value = picked.day.toString().setIsInput(true);
         inputDay.value = picked.day.toString().setInputDay(isInput.value);
         isDayInput.value = picked.day.toString().setIsDayInput(isInput.value);
-        if (isDayInput.value) allowanceInputDialog(isSpend);
+        if (isDayInput.value) await allowanceInputDialog(isSpend);
       }
     }
 
     ///connect to Firestore
-    connectFirestore(SharedPreferences prefs, int i) {
+    connectFirestore(SharedPreferences prefs, int i) async {
       isLoading.value = true;
       isAllowData.value[i] = true;
       "isAllowSaveLocalDataKey".setSharedPrefBool(prefs, isAllowData.value[i]);
-      (i == 0) ? setAllDataFirestore(prefs): getAllDataFirestore(prefs);
-      context.popPage();
+      (i == 0) ? await setAllDataFirestore(prefs): await getAllDataFirestore(prefs);
+      if (context.mounted) context.popPage();
     }
 
     ///Spend and Allowance Select Date Dialog
@@ -648,62 +652,64 @@ class MyHomePage extends HookConsumerWidget {
     }
 
     ///Item Input TextField Dialog
-    itemFieldDialog(double amount, int id) async =>
-        await showDialog(context: context,
-          builder: (context) => AlertDialog(
-            title: alertTitleText(context, context.spreadSheetAlertTitleText("item")),
-            content: TextField(
-              style: textFieldTextStyle(context),
-              controller: TextEditingController(),
-              decoration: spreadSheetAlertDecoration(context, "item", amount < 0),
-              cursorWidth: alertCursorWidth,
-              cursorHeight: alertCursorHeight,
-              cursorColor: amount.amountColor(),
-              maxLength: context.inputItemMaxLength(),
-              maxLengthEnforcement: MaxLengthEnforcement.enforced,
-              autofocus: true,
-              onChanged: (value) => onChangeItem(value, true),
-            ),
-            actions: [
-              TextButton(child: alertJudgeButtonText(context, "cancel", transpBlackColor),
-                onPressed: () => context.popPage()
-              ),
-              TextButton(child: alertJudgeButtonText(context, "ok", (amount < 0).speedDialColor()),
-                onPressed: () => rewriteAllowanceItem(id)
-              ),
-            ],
+    itemFieldDialog(double amount, int id) => showDialog(context: context,
+      builder: (context) => AlertDialog(
+        title: alertTitleText(context, context.spreadSheetAlertTitleText("item")),
+        content: TextField(
+          style: textFieldTextStyle(context),
+          controller: TextEditingController(),
+          decoration: spreadSheetAlertDecoration(context, "item", amount < 0),
+          cursorWidth: alertCursorWidth,
+          cursorHeight: alertCursorHeight,
+          cursorColor: amount.amountColor(),
+          maxLength: context.inputItemMaxLength(),
+          maxLengthEnforcement: MaxLengthEnforcement.enforced,
+          autofocus: true,
+          onChanged: (value) => onChangeItem(value, true),
+        ),
+        actions: [
+          TextButton(
+            child: alertJudgeButtonText(context, "cancel", transpBlackColor),
+            onPressed: () => context.popPage()
           ),
-        );
+          TextButton(
+            child: alertJudgeButtonText(context, "ok", (amount < 0).speedDialColor()),
+            onPressed: () => rewriteAllowanceItem(id)
+          ),
+        ],
+      ),
+    );
 
     ///Amount Input TextField Dialog
-    amntFieldDialog(double amount, int id) async =>
-        await showDialog(context: context,
-          builder: (context) => AlertDialog(
-            title: alertTitleText(context, context.spreadSheetAlertTitleText("amnt")),
-            content: TextField(
-              style: textFieldTextStyle(context),
-              controller: TextEditingController(),
-              keyboardType: TextInputType.numberWithOptions(decimal: true),
-              inputFormatters: inputMoneyFormat,
-              decoration: spreadSheetAlertDecoration(context, "amnt", amount < 0),
-              cursorWidth: alertCursorWidth,
-              cursorHeight: alertCursorHeight,
-              cursorColor: amount.amountColor(),
-              maxLength: inputMoneyMaxLength,
-              maxLengthEnforcement: MaxLengthEnforcement.enforced,
-              autofocus: true,
-              onChanged: (value) => onChangeAmount(value, amount < 0),
-            ),
-            actions: [
-              TextButton(child: alertJudgeButtonText(context, "cancel", transpBlackColor),
-                onPressed: () => context.popPage()
-              ),
-              TextButton(child: alertJudgeButtonText(context, "ok", (amount < 0).speedDialColor()),
-                onPressed: () => rewriteAllowanceAmnt(id)
-              ),
-            ],
+    amntFieldDialog(double amount, int id) => showDialog(context: context,
+      builder: (context) => AlertDialog(
+        title: alertTitleText(context, context.spreadSheetAlertTitleText("amnt")),
+        content: TextField(
+          style: textFieldTextStyle(context),
+          controller: TextEditingController(),
+          keyboardType: TextInputType.numberWithOptions(decimal: true),
+          inputFormatters: inputMoneyFormat,
+          decoration: spreadSheetAlertDecoration(context, "amnt", amount < 0),
+          cursorWidth: alertCursorWidth,
+          cursorHeight: alertCursorHeight,
+          cursorColor: amount.amountColor(),
+          maxLength: inputMoneyMaxLength,
+          maxLengthEnforcement: MaxLengthEnforcement.enforced,
+          autofocus: true,
+          onChanged: (value) => onChangeAmount(value, amount < 0),
+        ),
+        actions: [
+          TextButton(
+            child: alertJudgeButtonText(context, "cancel", transpBlackColor),
+            onPressed: () => context.popPage()
           ),
-        );
+          TextButton(
+            child: alertJudgeButtonText(context, "ok", (amount < 0).speedDialColor()),
+            onPressed: () => rewriteAllowanceAmnt(id)
+          ),
+        ],
+      ),
+    );
 
     ///DeleteButton
     deleteButtonPopUp(double amount, int id) =>
@@ -728,7 +734,12 @@ class MyHomePage extends HookConsumerWidget {
           backgroundColor: isSpend.speedDialColor(),
           label: context.speedDialTitle(isSpend),
           labelBackgroundColor: isSpend.speedDialColor(),
-          labelStyle: speedDialTextStyle(context),
+          labelStyle: TextStyle(
+            color: whiteColor,
+            fontSize: context.speedDialChildFontSize(),
+            fontFamily: "defaultFont",
+            fontWeight: FontWeight.bold,
+          ),
           child: Icon(isSpend.speedDialIcon(),
             size: context.speedDialChildIconSize(),
             shadows: [customShadow(false, shadowOffset)],
@@ -739,8 +750,8 @@ class MyHomePage extends HookConsumerWidget {
     ///UseEffect for Initialize
     useEffect(() {
       WidgetsBinding.instance.addPostFrameCallback((_) async {
+        if (Platform.isIOS || Platform.isMacOS) initATTPlugin(context);
         isLoading.value = true;
-        initPlugin(context);
         await initializeSharedPreferences().then((prefs) => getInitializeData(prefs));
         FlutterNativeSplash.remove();
       });
@@ -756,56 +767,62 @@ class MyHomePage extends HookConsumerWidget {
           preferredSize: Size.fromHeight(appBarHeight),
           child: AppBar(
             leading: (!isSummary.value) ? null: IconButton(
-              icon: Icon(backIcon, color: whiteColor, size: appBarIconSize),
+              icon: Icon(backIcon),
               onPressed: () => isSummary.value = false,
             ),
+            iconTheme: IconThemeData(color: whiteColor),
             title: appBarTitle(context, isSummary.value),
             backgroundColor: purpleColor,
             bottom: appBarBottomLine(),
             actions: [
-              (isSummary.value) ? IconButton(icon: Icon(moreIcon, color: transpColor),
-                onPressed: () {},
-              ): PopupMenuButton(
-                onSelected: (_) async => (isLogin.value) ? initializeSharedPreferences().then((prefs) => logout(prefs)): context.pushPage("/l"),
+              (!isSummary.value) ? PopupMenuButton(
+                onSelected: (_) => (isLogin.value) ? initializeSharedPreferences().then((prefs) => logout(prefs)): context.pushPage("/l"),
                 icon: Icon(moreIcon, color: whiteColor),
                 initialValue: context.popupMenuText(isLogin.value),
                 itemBuilder: (context) => [context.popupMenuText(isLogin.value)].map(
                   (value) => appBarPopupMenu(context, value)
                 ).toList(),
-              ),
+              ): Icon(moreIcon, color: transpColor),
             ],
           ),
         ),
         ///Drawer
         drawer: (isSummary.value) ? null: SafeArea(
           child: ClipRRect(borderRadius: context.drawerBorderRadius(),
-            child: Container(
+            child: SizedBox(
               width: context.drawerWidth(),
               child: Drawer(
                 child: ListView(children: [
                   drawerHeader(context, name.value),
                   SizedBox(height: context.drawerMenuListMarginTop()),
-                  GestureDetector(child: menuNameListTile(context, name.value),
+                  GestureDetector(
+                    child: menuNameListTile(context, name.value),
                     onTap: () => nameFieldDialog(),
                   ),
-                  GestureDetector(child: menuUnitListTile(context, unit.value),
+                  GestureDetector(
+                    child: menuUnitListTile(context, unit.value),
                     onTap: () => unitDropDownList(),
                   ),
-                  GestureDetector(child: menuAssetsListTile(context, initialAssets.value, unit.value, true),
+                  GestureDetector(
+                    child: menuAssetsListTile(context, initialAssets.value, unit.value, true),
                     onTap: () => setInitialAssetsDialog(),
                   ),
-                  // GestureDetector(child: menuAssetsListTile(context, targetAssets.value, unit.value, false),
+                  // GestureDetector(
+                  //   child: menuAssetsListTile(context, targetAssets.value, unit.value, false),
                   //   onTap: () => setTargetAssetsDialog(),
                   // ),
                   menuStartDateListTile(context, startDate.value),
-                  if (!isAllowData.value[0]) GestureDetector(child: menuLoginTile(context, isLogin.value, true),
+                  if (!isAllowData.value[0]) GestureDetector(
+                    child: menuLoginTile(context, isLogin.value, true),
                     onTap: () => (isLogin.value) ? initializeSharedPreferences().then((prefs) => connectFirestore(prefs, 0)): context.pushPage("/l"),
                   ),
-                  if (!isAllowData.value[1] && isLogin.value) GestureDetector(child: menuLoginTile(context, isLogin.value, false),
+                  if (!isAllowData.value[1] && isLogin.value) GestureDetector(
+                    child: menuLoginTile(context, isLogin.value, false),
                     onTap: () => (isLogin.value) ? initializeSharedPreferences().then((prefs) => connectFirestore(prefs, 1)): context.pushPage("/l"),
                   ),
                   //StartDate
-                  if (isLogin.value) GestureDetector(child: menuDeleteAccountListTile(context, context.deleteAccount()),
+                  if (isLogin.value) GestureDetector(
+                    child: menuDeleteAccountListTile(context, context.deleteAccount()),
                     onTap: () => deleteAccountDialog(),
                   ),
                 ]),
@@ -835,10 +852,14 @@ class MyHomePage extends HookConsumerWidget {
                   Spacer(flex: 1),
                 ]),
               ),
-              Center(child: monthYearText(context, startDate.value.stringThisMonthYear(index.value)))
+              Center(
+                child: Text(startDate.value.stringThisMonthYear(index.value),
+                  style: enAccentTextStyle(context, context.monthYearFontSize())
+                ),
+              ),
             ]),
             ///Balance & Percent
-            Container(
+            SizedBox(
               child: FittedBox(
                 child: Column(children: [
                   balanceView(context, balance.value[index.value], unit.value),
@@ -856,7 +877,7 @@ class MyHomePage extends HookConsumerWidget {
                 child: SingleChildScrollView(
                   child: Theme(
                     data: Theme.of(context).copyWith(dividerColor: purpleColor),
-                    child: Container(
+                    child: SizedBox(
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(context.spreadSheetCornerRadius()),
                         child: SingleChildScrollView(
@@ -872,7 +893,7 @@ class MyHomePage extends HookConsumerWidget {
                               columnSpacing: context.spreadSheetColumnSpacing(),
                               dividerThickness: spreadSheetDividerWidth,
                               decoration: BoxDecoration(color: whiteColor),
-                              headingRowColor: MaterialStateColor.resolveWith((states) => purpleColor),
+                              headingRowColor: WidgetStateColor.resolveWith((states) => purpleColor),
                               columns: dataColumnTitles(context),
                               rows: List.generate(listNumber.value[index.value], (i) {
                                 int day = allowanceDate.value[index.value][i];
@@ -912,7 +933,6 @@ class MyHomePage extends HookConsumerWidget {
         floatingActionButton: (isSummary.value) ? null: Container(
           margin: EdgeInsets.only(bottom: context.floatingActionBottomMargin()),
           child: Row(children: [
-            SizedBox(width: floatingActionButtonLeftMargin),
             // Change to List or Change to Summary
             if (maxIndex.value > 0 && (assets.value.reduce(max) > 0 || spends.value.reduce(max) > 0))
               GestureDetector(child: summaryButtonImage(context), onTap: () => changeSummary()),

@@ -12,7 +12,7 @@ import 'login_viewmodel.dart';
 import 'login_widget.dart';
 
 class LoginPage extends HookConsumerWidget {
-  const LoginPage({Key? key}) : super(key: key);
+  const LoginPage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -108,8 +108,8 @@ class LoginPage extends HookConsumerWidget {
       initializeSharedPreferences().then((prefs) async {
         serverSaveDateTime.value = await getServerSaveDateTime();
         localSaveDateTime.value = "localSaveDateTimeKey".getSharedPrefInt(prefs, DateTime.now().toDateTimeInt());
-        (serverSaveDateTime.value != localSaveDateTime.value && serverSaveDateTime.value != DateTime.now().toDateTimeInt()) ?
-          allowGetServerDataAlertDialog(context): allowSaveLocalData();
+        (serverSaveDateTime.value != localSaveDateTime.value && serverSaveDateTime.value != DateTime.now().toDateTimeInt() && context.mounted) ? allowGetServerDataAlertDialog(context):
+          (serverSaveDateTime.value != localSaveDateTime.value && serverSaveDateTime.value != DateTime.now().toDateTimeInt()) ? null: allowSaveLocalData();
       });
       isLoading.value = false;
     }
@@ -130,11 +130,11 @@ class LoginPage extends HookConsumerWidget {
             successLogin(auth);
           } else if (user != null) {
             await user.sendEmailVerification();
-            showSuccessSnackBar(context, context.sentVerifiedEmail());
+            if (context.mounted) showSuccessSnackBar(context, context.sentVerifiedEmail());
             isLoading.value = false;
           }
         } on FirebaseAuthException catch (e) {
-          showFailedSnackBar(context, context.loginFailed(), context.loginErrorCodeMessage(e.code, "login"));
+          if (context.mounted) showFailedSnackBar(context, context.loginFailed(), context.loginErrorCodeMessage(e.code, "login"));
           isLoading.value = false;
         }
       }
@@ -146,7 +146,7 @@ class LoginPage extends HookConsumerWidget {
         isLoading.value = true;
         final auth = FirebaseAuth.instance;
         auth.setLanguageCode(context.lang());
-        "${context.lang()}".debugPrint();
+        context.lang().debugPrint();
         try {
           UserCredential result = await auth.createUserWithEmailAndPassword(
             email: inputEmail.value,
@@ -155,15 +155,15 @@ class LoginPage extends HookConsumerWidget {
           User? user = result.user;
           if (user != null) {
             await user.sendEmailVerification();
-            showSuccessSnackBar(context, context.sentVerifiedEmail());
-            await Future.delayed(new Duration(seconds: 2)).then((_) => isSignUp.value = false);
+            if (context.mounted) showSuccessSnackBar(context, context.sentVerifiedEmail());
+            await Future.delayed(Duration(seconds: 2)).then((_) => isSignUp.value = false);
             isLoading.value = false;
           } else {
-            showFailedSnackBar(context, context.sendMailError(), context.signupErrorMessage());
+            if (context.mounted) showFailedSnackBar(context, context.sendMailError(), context.signupErrorMessage());
             isLoading.value = false;
           }
         } on FirebaseAuthException catch (e) {
-          showFailedSnackBar(context, context.signupFailed(), context.loginErrorCodeMessage(e.code, "signup"));
+          if (context.mounted) showFailedSnackBar(context, context.signupFailed(), context.loginErrorCodeMessage(e.code, "signup"));
           isLoading.value = false;
         }
       }
@@ -175,16 +175,16 @@ class LoginPage extends HookConsumerWidget {
         isLoading.value = true;
         final auth = FirebaseAuth.instance;
         auth.setLanguageCode(context.lang());
-        "${context.lang()}".debugPrint();
+        context.lang().debugPrint();
         try {
           await auth.sendPasswordResetEmail(email: inputEmail.value);
-          showSuccessSnackBar(context, context.sentPassResetMail());
+          if (context.mounted) showSuccessSnackBar(context, context.sentPassResetMail());
           isLoading.value = false;
-          context.popPage();
+          if (context.mounted) context.popPage();
         } on FirebaseAuthException catch (e) {
-          showFailedSnackBar(context, context.sendMailError(), context.loginErrorCodeMessage(e.code, ""));
+          if (context.mounted) showFailedSnackBar(context, context.sendMailError(), context.loginErrorCodeMessage(e.code, ""));
           isLoading.value = false;
-          context.popPage();
+          if (context.mounted) context.popPage();
         }
       }
     }
@@ -198,13 +198,13 @@ class LoginPage extends HookConsumerWidget {
     }
     //Password
     onChangeInputPassword(String value) {
-      inputPassword.value = (value.length > 0) ? value : "";
+      inputPassword.value = value.isNotEmpty ? value : "";
       isPasswordInput.value = RegExp(passwordValidation).hasMatch(value);
       "password: $value, ${isPasswordInput.value}".debugPrint();
     }
     //Confirm Password
     onChangeInputConfirmPass(String value) {
-      inputConfirmPass.value = (value.length > 0) ? value : "";
+      inputConfirmPass.value = value.isNotEmpty ? value : "";
       isConfirmPassInput.value = (inputConfirmPass.value == inputPassword.value);
       "confirmPass: $value, ${isConfirmPassInput.value}".debugPrint();
     }
@@ -269,7 +269,7 @@ class LoginPage extends HookConsumerWidget {
 
     useEffect(() {
       Future.delayed(Duration.zero, () {
-        FocusScope.of(context).requestFocus(FocusNode());
+        if (context.mounted) FocusScope.of(context).requestFocus(FocusNode());
       });
       return null;
     }, []);
@@ -299,8 +299,8 @@ class LoginPage extends HookConsumerWidget {
         ),
         body: Container(
           decoration: backgroundDecoration(),
-          child: Center(
-            child: Column(children: [
+          child: Column(
+            children: [
               Spacer(flex: 1),
               loginTitleText(context),
               ClipRRect(
@@ -326,9 +326,9 @@ class LoginPage extends HookConsumerWidget {
               if (!isSignUp.value) GestureDetector(child: forgetPassText(context),
                 onTap: () => passwordResetDialog()
               ),
-              Spacer(flex: 2),
+              Spacer(flex: 3),
               AdBannerWidget(),
-            ]),
+            ]
           ),
         ),
       ),

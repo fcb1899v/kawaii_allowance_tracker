@@ -34,15 +34,6 @@ TextStyle customAccentTextStyle(BuildContext context, double fontSize, bool isDa
       shadows: [customShadow(isDark, shadowOffset)],
     );
 
-TextStyle unitAccentTextStyle(BuildContext context, double fontSize) =>
-    TextStyle(
-      color: whiteColor,
-      fontSize: fontSize,
-      fontFamily: "Roboto",
-      fontWeight: FontWeight.bold,
-      shadows: [customShadow(false, shadowOffset)],
-    );
-
 TextStyle enAccentTextStyle(BuildContext context, double fontSize) =>
     TextStyle(
       color: whiteColor,
@@ -66,8 +57,8 @@ Text appBarTitleText(BuildContext context, String title) =>
 
 PreferredSize appBarBottomLine() =>
     PreferredSize(
-      child: Container(color: whiteColor, height: appBarBottomLineWidth),
       preferredSize: Size.fromHeight(appBarBottomLineWidth),
+      child: Container(color: whiteColor, height: appBarBottomLineWidth),
     );
 
 Icon textFieldPrefixIcon(IconData icon) =>
@@ -122,13 +113,10 @@ BoxDecoration actionButtonBoxDecoration(Color color) =>
 
 Text alertJudgeButtonText(BuildContext context, String judge, Color? color) =>
     Text(context.judgeText(judge),
-      style: alertJudgeButtonTextStyle(context, color),
-    );
-
-TextStyle alertJudgeButtonTextStyle(BuildContext context, Color? color) =>
-    TextStyle(
-      color: color,
-      fontSize: context.alertFontSize(),
-      fontFamily: "defaultFont",
-      fontWeight: FontWeight.bold,
+      style: TextStyle(
+        color: color,
+        fontSize: context.alertFontSize(),
+        fontFamily: "defaultFont",
+        fontWeight: FontWeight.bold,
+      ),
     );

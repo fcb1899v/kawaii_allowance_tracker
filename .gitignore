@@ -5,9 +5,11 @@
 *.swp
 .DS_Store
 .atom/
+.build/
 .buildlog/
 .history
 .svn/
+.swiftpm/
 migrate_working_dir/
 
 # IntelliJ related
@@ -52,3 +54,5 @@ ios/Flutter/.last_build_id
 pubspec.lock
 pubspec.yaml
 /assets/.env
+Podfile
+*.plist

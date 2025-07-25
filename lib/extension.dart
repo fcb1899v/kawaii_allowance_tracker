@@ -5,7 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'l10n/app_localizations.dart' show AppLocalizations;
 import 'constant.dart';
 
 class AllowanceList {
@@ -45,107 +45,104 @@ extension ContextExt on BuildContext {
   double bottom() => MediaQuery.of(this).padding.bottom;
   double displayHeight() => height() - top() - bottom() - admobHeight();
   //Drawer
-  double drawerWidth() => maxWidth() * drawerWidthRate;
+  double drawerWidth() => maxWidth() * 0.9;
   double drawerTitleHeightRate(String name) =>
-      (drawerTitle(name) == title()) ? drawerTitleNoNameHeightRate: drawerTitleExistNameHeightRate;
+      (drawerTitle(name) == appTitle()) ? 0.22: 0.33;
   double drawerTitleHeight(String name) => maxWidth() * drawerTitleHeightRate(name);
-  double drawerTitleBorderRadius() => maxWidth() * drawerTitleBorderRadiusRate;
-  double drawerTitleFontSize() => maxWidth() * drawerTitleFontSizeRate;
-  double drawerMenuListIconSize() => maxWidth() * drawerMenuListIconSizeRate;
-  double drawerMenuListFontSize() => maxWidth() * drawerMenuListFontSizeRate;
-  double drawerMenuListMarginTop() => maxWidth() * drawerMenuListMarginTopRate;
-  double drawerMenuListMargin() => height() * drawerMenuListMarginRate;
-  double drawerMenuListSubTitleMarginTop() => maxWidth() * drawerMenuListSubTitleMarginTopRate;
+  double drawerTitleBorderRadius() => maxWidth() * 0.1;
+  double drawerTitleFontSize() => maxWidth() * 0.06;
+  double drawerMenuListIconSize() => maxWidth() * 0.08;
+  double drawerMenuListFontSize() => maxWidth() * 0.04;
+  double drawerMenuListMarginTop() => maxWidth() * 0.03;
+  double drawerMenuListMargin() => height() * 0.01;
+  double drawerMenuListSubTitleMarginTop() => maxWidth() * 0.02;
   BorderRadius drawerBorderRadius() => BorderRadius.only(
     topRight: Radius.circular(drawerTitleBorderRadius()),
     bottomRight: Radius.circular(drawerTitleBorderRadius()),
   );
-
   //Main Body
-  double mainBodyMarginTop() => height() * mainBodyMarginTopRate;
-  double balanceFontSize() => maxWidth() * (lang() == "ja" ? balanceJaFontSizeRate: balanceEnFontSizeRate);
-  double balanceUnitSize() => maxWidth() * balanceUnitSizeRate;
-  double balanceMoneySize() => maxWidth() * balanceMoneySizeRate;
-  double balanceMoneyShiftSize() => maxWidth() * balanceMoneyShiftSizeRate;
-  double balanceMarginHorizontal() => maxWidth() * balanceMarginHorizontalRate;
-  double percentMarginBottom() => height() * percentMarginBottomRate;
-  double percentBarWidth() => (width() * percentBarWidthRate > percentBarMaxWidth) ? percentBarMaxWidth: width() * percentBarWidthRate;
-  double plusMinusSize() => height() * plusMinusSizeRate;
-  double plusMinusMarginTop() => maxWidth() * plusMinusMarginTopRate;
-  double plusMinusIconSize() => height() * plusMinusIconSizeRate;
-  double plusMinusSpace() => height() * plusMinusSpaceRate;
-  double monthYearFontSize() => maxWidth() * monthYearFontSizeRate;
-  //Floating Action Button
-  double floatingActionBottomMargin() => admobHeight() + height() * floatingActionBottomMarginRate;
-  double floatingActionButtonSize() => maxWidth() * floatingActionButtonSizeRate;
-  double floatingActionIconSize() => maxWidth() * floatingActionIconSizeRate;
-  double speedDialIconSize() => maxWidth() * speedDialIconSizeRate;
-  double speedDialChildButtonSize() => maxWidth() * speedDialChildButtonSizeRate;
-  double speedDialChildIconSize() => maxWidth() * speedDialChildIconSizeRate;
-  double speedDialSpaceFontSize() => maxWidth() * speedDialSpaceFontSizeRate;
-  double speedDialSpacing() => maxWidth() * speedDialSpacingRate;
-  double speedDialSpaceHeight() => maxWidth() * speedDialSpaceHeightRate;
+  double mainBodyMarginTop() => height() * 0.03;
+  double balanceFontSize() => maxWidth() * (lang() == "ja" ? 0.07: 0.09);
+  double balanceUnitSize() => maxWidth() * 0.10;
+  double balanceMoneySize() => maxWidth() * 0.12;
+  double balanceMoneyShiftSize() => maxWidth() * 0.025;
+  double balanceMarginHorizontal() => maxWidth() * 0.05;
+  double percentMarginBottom() => height() * 0.03;
+  double percentBarWidth() => (width() * 0.8 > 600.0) ? 600.0: width() * 0.8;
+  double plusMinusSize() => height() * 0.04;
+  double plusMinusMarginTop() => maxWidth() * 0.03;
+  double plusMinusIconSize() => height() * 0.032;
+  double plusMinusSpace() => height() * 0.2;
+  double monthYearFontSize() => maxWidth() * 0.07;
   //Chart & SpreadSheet
-  double scrollViewMarginHorizontal() => width() * scrollViewMarginHorizontalRate;
-  double scrollViewMarginVertical() => height() * scrollViewMarginVerticalRate;
-  double spreadSheetCornerRadius() => height() * spreadSheetCornerRadiusRate;
-  double spreadSheetFontSize() => height() * spreadSheetFontSizeRate;
-  double spreadSheetIconSize() => height() * spreadSheetIconSizeRate;
-  double spreadSheetRowHeight() => height() * spreadSheetRowHeightRate;
-  double spreadSheetColumnSpacing() => height() * spreadSheetColumnSpacingRate;
-  double deleteButtonWidth() => height() * deleteButtonWidthRate;
+  double scrollViewMarginHorizontal() => width() * 0.05;
+  double scrollViewMarginVertical() => height() * 0.015;
+  double spreadSheetCornerRadius() => height() * 0.018;
+  double spreadSheetFontSize() => height() * 0.02;
+  double spreadSheetIconSize() => height() * 0.025;
+  double spreadSheetRowHeight() => height() * 0.05;
+  double spreadSheetColumnSpacing() => height() * 0.015;
+  double deleteButtonWidth() => height() * 0.03;
   //Chart
-  double chartHeight() => height() * chartHeightRate;
+  double chartHeight() => height() * 0.40;
   double chartWidth() => (width() > 1000) ? 1000: width();
-  double chartBarWidth() => height() * chartBarWidthRate;
-  double chartDotWidth() => height() * chartDotWidthRate;
-  double chartBorderWidth() => height() * chartBorderWidthRate;
-  double chartVerticalBorderWidth() => height() * chartVerticalBorderWidthRate;
-  double chartHorizontalBorderWidth() => height() * chartHorizontalBorderWidthRate;
-  double chartTitleFontSize() => height() * chartTitleFontSizeRate;
-  double chartBottomMargin() => height() * chartBottomMarginRate;
-  double chartTopAxisNameSize() => height() * chartTopAxisNameSizeRate;
-  double chartBottomAxisNameSize() => height() * chartBottomAxisNameSizeRate;
-  double chartTopMarginLeft() => height() * chartTopMarginLeftRate;
-  double chartBottomMarginLeft() => height() * chartBottomMarginLeftRate;
-  double chartBottomFontSize() => height() * chartBottomFontSizeRate;
-  double chartLeftReservedSize() => width() * chartLeftReservedSizeRate;
-  double chartBottomReservedSize() => width() * chartBottomReservedSizeRate;
-  double chartAxisFontSize() => width() * chartAxisFontSizeRate;
+  double chartBarWidth() => height() * 0.005;
+  double chartDotWidth() => height() * 0.006;
+  double chartBorderWidth() => height() * 0.002;
+  double chartVerticalBorderWidth() => height() * 0.0005;
+  double chartHorizontalBorderWidth() => height() * 0.002;
+  double chartTitleFontSize() => height() * 0.03;
+  double chartTopAxisNameSize() => height() * 0.07;
+  double chartTopMarginLeft() => height() * 0.04;
+  double chartBottomMargin() => height() * 0.01;
+  double chartBottomAxisNameSize() => height() * 0.05;
+  double chartBottomMarginLeft() => height() * 0.03;
+  double chartBottomFontSize() => height() * 0.025;
+  double chartLeftReservedSize() => width() * 0.12;
+  double chartBottomReservedSize() => width() * 0.06;
+  double chartAxisFontSize() => width() * 0.03;
+  //Floating Action Button
+  double floatingActionBottomMargin() => admobHeight() + height() * 0.02;
+  double floatingActionButtonSize() => maxWidth() * 0.12;
+  double floatingActionIconSize() => maxWidth() * 0.08;
+  double speedDialIconSize() => maxWidth() * 0.07;
+  double speedDialChildButtonSize() => maxWidth() * 0.13;
+  double speedDialChildFontSize() => maxWidth() * 0.05;
+  double speedDialChildIconSize() => maxWidth() * 0.08;
+  double speedDialSpaceFontSize() => maxWidth() * 0.04;
+  double speedDialSpacing() => maxWidth() * 0.01;
+  double speedDialSpaceHeight() => maxWidth() * 0.04;
   //Login
-  double loginTitleSize() => maxWidth() * (lang() == "ja" ? loginJaTitleSizeRate: loginEnTitleSizeRate);
-  double loginIconSize() => maxWidth() * loginIconSizeRate;
-  double loginFontSize() => maxWidth() * loginFontSizeRate;
-  double loginMessageSize() => maxWidth() * loginMessageSizeRate;
-  double loginHintSize(String input) =>
-      maxWidth() * ((input == "password") ? loginPassHintSizeRate: loginHintSizeRate);
-  double loginTitleMarginTop() => maxWidth() * loginTitleMarginTopRate;
-  double loginTitleMarginBottom() => maxWidth() * loginTitleMarginBottomRate;
-  double loginInputAreaRadius() => maxWidth() * loginInputAreaRadiusRate;
-  double loginInputAreaWidth() => maxWidth() * loginInputAreaWidthRate;
-  double loginInputAreaPadding() => maxWidth() * loginInputAreaPaddingRate;
-  double loginInputIconSpace() => maxWidth() * loginInputIconSpaceRate;
-  double loginTextFieldMarginBottom() => maxWidth() * loginTextFieldMarginBottomRate;
-  double loginButtonWidth() => maxWidth() * loginButtonWidthRate;
-  double loginButtonHeight() => maxWidth() * loginButtonHeightRate;
+  double loginTitleSize() => maxWidth() * 0.075;
+  double loginIconSize() => maxWidth() * 0.07;
+  double loginFontSize() => maxWidth() * 0.045;
+  double loginMessageSize() => maxWidth() * 0.04;
+  double loginHintSize() => maxWidth() * 0.04;
+  double loginTitleMarginTop() => maxWidth() * 0.15;
+  double loginTitleMarginBottom() => maxWidth() * 0.08;
+  double loginInputAreaRadius() => maxWidth() * 0.08;
+  double loginInputAreaWidth() => maxWidth() * 0.92;
+  double loginInputAreaPadding() => maxWidth() * 0.06;
+  double loginInputIconSpace() => maxWidth() * 0.1;
+  double loginTextFieldMarginBottom() => maxWidth() * 0.05;
+  double loginButtonWidth() => maxWidth() * 0.70;
+  double loginButtonHeight() => maxWidth() * 0.14;
   double loginButtonRadius() => loginButtonHeight() / 2;
-  double loginButtonMarginTop() => maxWidth() * loginButtonMarginTopRate;
-  double loginButtonMarginBottom() => maxWidth() * loginButtonMarginBottomRate;
-  double moveSignupMarginTop() => maxWidth() * moveSignupMarginTopRate;
-  double moveSignupMarginBottom() => maxWidth() * moveSignupMarginBottomRate;
-  double forgetPassMarginTop() => maxWidth() * forgetPassMarginTopRate;
-  double loginCounterCharSize() => maxWidth() * loginCounterCharSizeRate;
-  double loginVisibleMarginTop() => maxWidth() * loginVisibleMarginTopRate;
-  double loginVisibleMarginRight() => maxWidth() * loginVisibleMarginRightRate;
-  double snackBarMargin() => maxWidth() * snackBarMarginRate;
-
-      //Admob
-  double admobHeight() => admobMinimumHeight + ((height() < 600) ? 0: (height() < 1000) ? (height() - 600) / 8: 50);
-  double admobWidth() => width() - 100;
+  double loginButtonMarginTop() => maxWidth() * 0.04;
+  double loginButtonMarginBottom() => maxWidth() * 0.04;
+  double moveSignupMarginTop() => maxWidth() * 0.02;
+  double moveSignupMarginBottom() => maxWidth() * 0.04;
+  double forgetPassMarginTop() => maxWidth() * 0.08;
+  double loginCounterCharSize() => maxWidth() * 0.02;
+  double loginVisibleMarginTop() => maxWidth() * 0.04;
+  double loginVisibleMarginRight() => maxWidth() * 0.02;
+  double snackBarMargin() => maxWidth() * 0.03;
+  //Admob
+  double admobHeight() => (height() < 600) ? 50: (height() < 1000) ? (height() / 8 - 25): 100;
+  double admobWidth() => width();
   // Localize String
   String appTitle() => AppLocalizations.of(this)!.appTitle;
   String thisApp() => AppLocalizations.of(this)!.thisApp;
-  String title() => AppLocalizations.of(this)!.title;
   String s() => AppLocalizations.of(this)!.s;
   String tracker() => AppLocalizations.of(this)!.tracker;
   String notSet() => AppLocalizations.of(this)!.notSet;
@@ -223,7 +220,6 @@ extension ContextExt on BuildContext {
   String cantSendVerifiedEmail() => AppLocalizations.of(this)!.cantSendVerifiedEmail;
   String sentPassResetMail() => AppLocalizations.of(this)!.sentPassResetEmail;
   String cantSendPassResetEmail() => AppLocalizations.of(this)!.cantSendPassResetEmail;
-
   //Firestore
   String storeDataAfterLogin() => AppLocalizations.of(this)!.storeDataAfterLogin;
   String getStoredData() => AppLocalizations.of(this)!.getStoredData;
@@ -239,19 +235,16 @@ extension ContextExt on BuildContext {
   String confirmDeleteAccount() => AppLocalizations.of(this)!.confirmDeleteAccount;
 
   //Common
-  String orNotSet(String text) =>
-      (text == "") ? notSet(): text;
-  String judgeText(String judge) =>
-      (judge == "ok") ? ok(): (judge == "no") ? no(): canceled();
+  String orNotSet(String text) => (text == "") ? notSet(): text;
+  String judgeText(String judge) => (judge == "ok") ? ok(): (judge == "no") ? no(): canceled();
+
   //AppBar
-  String appBarTitleText(bool isSelectSummary) =>
-      (isSelectSummary) ? list():summary();
-  String popupMenuText(bool isSelectSummary) =>
-      (isSelectSummary) ? tryLogout(): tryLogin();
+  String appBarTitleText(bool isSelectSummary) => (isSelectSummary) ? list(): summary();
+  String popupMenuText(bool isSelectSummary) => (isSelectSummary) ? tryLogout(): tryLogin();
+
   //Drawer
   String drawerTitle(String name) =>
-      (name.isEmpty || name == notSet()) ? title():
-      (lang() == "ja") ? "$name${s()}\n\n${tracker()}":
+      (name.isEmpty || name == notSet()) ? appTitle():
       "$name${s()}\n${tracker()}";
   String drawerAlertTitle(String input) =>
       (input == "unit") ? settingUnitTitle():
@@ -318,7 +311,7 @@ extension StringExt on String {
   double toDouble(double defaultDouble) =>
       (double.parse(this) >= 0.0) ? double.parse(this): defaultDouble;
   List<List<int>> toListListDate() {
-    final originalData = this.replaceAll("[[", "").replaceAll("]]", "");
+    final originalData = replaceAll("[[", "").replaceAll("]]", "");
     List<String> outerList = originalData.split("],[");
     List<List<int>> data = [];
     for (String innerList in outerList) {
@@ -329,7 +322,7 @@ extension StringExt on String {
     return data;
   }
   List<List<String>> toListListItem() {
-    final originalData = this.replaceAll("[[", "").replaceAll("]]", "");
+    final originalData = replaceAll("[[", "").replaceAll("]]", "");
     List<String> outerList = originalData.split("],[");
     List<List<String>> data = [];
     for (String innerList in outerList) {
@@ -340,7 +333,7 @@ extension StringExt on String {
     return data;
   }
   List<List<double>> toListListAmnt() {
-    final originalData = this.replaceAll("[[", "").replaceAll("]]", "");
+    final originalData = replaceAll("[[", "").replaceAll("]]", "");
     List<String> outerList = originalData.split("],[");
     List<List<double>> data = [];
     for (String innerList in outerList) {
@@ -353,50 +346,44 @@ extension StringExt on String {
 
   //SharedPreferences this is key
   setSharedPrefString(SharedPreferences prefs, String value) {
-    "${this.replaceAll("Key","")}: $value".debugPrint();
+    "${replaceAll("Key","")}: $value".debugPrint();
     prefs.setString(this, value);
   }
   setSharedPrefDouble(SharedPreferences prefs, double value) {
-    "${this.replaceAll("Key","")}: $value".debugPrint();
+    "${replaceAll("Key","")}: $value".debugPrint();
     prefs.setDouble(this, value);
   }
   setSharedPrefInt(SharedPreferences prefs, int value) {
-    "${this.replaceAll("Key","")}: $value".debugPrint();
+    "${replaceAll("Key","")}: $value".debugPrint();
     prefs.setInt(this, value);
   }
   setSharedPrefBool(SharedPreferences prefs, bool value) {
-    "${this.replaceAll("Key","")}: $value".debugPrint();
+    "${replaceAll("Key","")}: $value".debugPrint();
     prefs.setBool(this, value);
   }
   getSharedPrefString(SharedPreferences prefs, String defaultString) {
-    String data = prefs.getString(this) ?? defaultString;
-    "${this.replaceAll("Key","")}: $data".debugPrint();
-    return data;
+    "${replaceAll("Key","")}: ${prefs.getString(this) ?? defaultString}".debugPrint();
+    return prefs.getString(this) ?? defaultString;
   }
   getSharedPrefDouble(SharedPreferences prefs, double defaultDouble) {
-    double data = prefs.getDouble(this) ?? defaultDouble;
-    "${this.replaceAll("Key","")}: $data".debugPrint();
-    return data;
+    "${replaceAll("Key","")}: ${prefs.getDouble(this) ?? defaultDouble}".debugPrint();
+    return prefs.getDouble(this) ?? defaultDouble;
   }
   getSharedPrefInt(SharedPreferences prefs, int defaultInt) {
-    int data = prefs.getInt(this) ?? defaultInt;
-    "${this.replaceAll("Key","")}: $data".debugPrint();
-    return data;
+    "${replaceAll("Key","")}: ${prefs.getInt(this) ?? defaultInt}".debugPrint();
+    return prefs.getInt(this) ?? defaultInt;
   }
   getSharedPrefBool(SharedPreferences prefs, bool defaultBool) {
-    bool data = prefs.getBool(this) ?? defaultBool;
-    "${this.replaceAll("Key","")}: $data".debugPrint();
-    return data;
+    "${replaceAll("Key","")}: ${prefs.getBool(this) ?? defaultBool}".debugPrint();
+    return prefs.getBool(this) ?? defaultBool;
   }
   getIntList(SharedPreferences prefs, int maxIndex) {
-    List<int> data = List.generate(maxIndex + 1, (i) => prefs.getInt("$this$i") ?? 1);
-    "${this.replaceAll("Key","")}: $data".debugPrint();
-    return data;
+    "${replaceAll("Key","")}: ${List.generate(maxIndex + 1, (i) => prefs.getInt("$this$i") ?? 1)}".debugPrint();
+    return List.generate(maxIndex + 1, (i) => prefs.getInt("$this$i") ?? 1);
   }
   getDoubleList(SharedPreferences prefs, int maxIndex) {
-    List<double> data = List.generate(maxIndex + 1, (i) => prefs.getDouble("$this$i") ?? 0.0);
-    "${this.replaceAll("Key","")}: $data".debugPrint();
-    return data;
+    "${replaceAll("Key","")}: ${List.generate(maxIndex + 1, (i) => prefs.getDouble("$this$i") ?? 0.0)}".debugPrint();
+    return List.generate(maxIndex + 1, (i) => prefs.getDouble("$this$i") ?? 0.0);
   }
   getAllowanceDate(SharedPreferences prefs, int maxIndex, List<int> allowanceDate) {
     List<List<int>> data = List.generate(maxIndex + 1, (i) =>
@@ -421,61 +408,50 @@ extension StringExt on String {
   }
   //Input SpeedDial
   bool setIsInput(bool isDay) {
-    final isInput = RegExp(isDay ? dayValidation: amountValidation).hasMatch(this);
-    "inputFlag: $isInput".debugPrint();
-    return isInput;
+    "inputFlag: ${RegExp(isDay ? dayValidation: amountValidation).hasMatch(this)}".debugPrint();
+    return RegExp(isDay ? dayValidation: amountValidation).hasMatch(this);
   }
   int setInputDay(bool isInput) {
-    final inputDay = isInput ? this.toInt(0): 0;
-    "inputDay: $inputDay".debugPrint();
-    return inputDay;
+    "inputDay: ${isInput ? toInt(0): 0}".debugPrint();
+    return isInput ? toInt(0): 0;
   }
   bool setIsDayInput(bool isInput) {
-    final isDayInput = (isInput && this.toInt(0).correctDay() > 0);
-    "isDayInput: $isDayInput".debugPrint();
-    return isDayInput;
+    "isDayInput: ${(isInput && toInt(0).correctDay() > 0)}".debugPrint();
+    return (isInput && toInt(0).correctDay() > 0);
   }
   String setInputItem(BuildContext context, bool isInput, bool isSpend) {
-    final inputItem = (isInput) ? this: "";
-    "inputItem: $inputItem".debugPrint();
-    return inputItem;
+    "inputItem: ${(isInput) ? this: ""}".debugPrint();
+    return (isInput) ? this: "";
   }
-  bool setIsItemInput(bool isInput, bool isSpend) {
-    final isItemInput = isInput;
-    "isItemInput: $isItemInput".debugPrint();
-    return isItemInput;
+  bool setIsItemInput(bool isInput) {
+    "isItemInput: $isInput".debugPrint();
+    return isInput;
   }
   double setInputAmount(bool isInput, bool isSpend, String unit) {
-    this.debugPrint();
-    final inputAmount = (isInput) ? isSpend.setPlusMinus() * this.toDouble(0.0): 0.0;
-    "inputAmount: $inputAmount".debugPrint();
-    return inputAmount;
+    "inputAmount: ${(isInput) ? isSpend.setPlusMinus() * toDouble(0.0): 0.0}".debugPrint();
+    return (isInput) ? isSpend.setPlusMinus() * toDouble(0.0): 0.0;
   }
   bool setIsAmountInput(bool isInput) {
-    final isAmountInput = (isInput && this.toDouble(0.0) != 0.0);
-    "isAmountInput: $isAmountInput".debugPrint();
-    return isAmountInput;
+    "isAmountInput: ${(isInput && toDouble(0.0) != 0.0)}".debugPrint();
+    return (isInput && toDouble(0.0) != 0.0);
   }
-
   bool setIsInitialAssetsInput(bool isInput) {
-    final isAssetsInput = isInput ? (this.toDouble(0.0) >= 0.0) : false;
-    "isAmountInput: $isAssetsInput".debugPrint();
-    return isAssetsInput;
+    "isAmountInput: ${isInput ? (toDouble(0.0) >= 0.0) : false}".debugPrint();
+    return isInput ? (toDouble(0.0) >= 0.0) : false;
   }
 
   //unit
   int numberDigit() => (this == '¥') ? 0: 2;
 
   //day
-  String addZero() => (this.toInt(0) < 10) ? "0$this": "$this";
-  int removeZero() => (this[0] == "0") ? this[1].toInt(1): this.toInt(1);
+  String addZero() => (toInt(0) < 10) ? "0$this": this;
+  int removeZero() => (this[0] == "0") ? this[1].toInt(1): toInt(1);
 
   //startDate
-  int toDay() => this.split("/")[1].removeZero();
-  int toMonth() => this.split("/")[0].removeZero();
-  int toYear() => this.split("/")[2].toInt(2023);
+  int toDay() => split("/")[1].removeZero();
+  int toMonth() => split("/")[0].removeZero();
+  int toYear() => split("/")[2].toInt(2023);
   int toDateInt() => toYear() * 10000 + toMonth() * 100 + toDay();
-  int toCurrentIndex() => 12 * (DateTime.now().year - toYear()) + DateTime.now().month - toMonth();
 
   DateTime toThisDate(int index) =>
       DateTime(toYear() + (index + toMonth()) ~/ 12, (toMonth() + index) % 12, toDay());
@@ -543,13 +519,13 @@ extension DoubleExt on double {
   double toAbs() =>
       (this < 0) ? this * (-1.0): this;
   String formatNumber(String unit) =>
-      "${NumberFormat((unit == "¥") ? "#,###": "#,##0.00").format(this.toAbs())}";
+      NumberFormat((unit == "¥") ? "#,###": "#,##0.00").format(toAbs());
   String stringBalance(String unit) =>
-      "${(this <= 0.0) ? "0": formatNumber(unit)}";
+      (this <= 0.0) ? "0": formatNumber(unit);
   String stringAmount(String unit) =>
-      "${(this == 0.0) ? "": formatNumber(unit)}";
+      (this == 0.0) ? "": formatNumber(unit);
   String stringAssets(BuildContext context, String unit) =>
-      "${(this == 0.0) ? "0": (this > 0.0) ? formatNumber(unit): context.notSet()}";
+      (this == 0.0) ? "0": (this > 0.0) ? formatNumber(unit): context.notSet();
   String stringItem(BuildContext context, String item) =>
       (this == 0.0 || item.isEmpty) ? "": item;
   Color amountColor() =>
@@ -619,19 +595,19 @@ extension DateExt on DateTime? {
 
 extension ListMapExt on List<Map> {
 
-  Future<void> allowanceListSort() async{
-    this.sort((a, b) => a["date"].compareTo(b["date"]));
+  Future<void> allowanceListSort() async {
+    sort((a, b) => a["date"].compareTo(b["date"]));
   }
 }
 
 extension ListDoubleExt on List<double> {
 
   double toAllowance() =>
-      List.generate(this.length, (i) => (this[i] > 0.0) ? this[i]: 0.0).reduce((a, b) => a + b);
+      List.generate(length, (i) => (this[i] > 0.0) ? this[i]: 0.0).reduce((a, b) => a + b);
   double toBalance() =>
-      List.generate(this.length, (i) => this[i]).reduce((a, b) => a + b);
+      List.generate(length, (i) => this[i]).reduce((a, b) => a + b);
   double toSpends() =>
-    List.generate(this.length, (i) => (this[i] < 0.0) ? (-1.0) * this[i]: 0.0).reduce((a, b) => a + b);
+    List.generate(length, (i) => (this[i] < 0.0) ? (-1.0) * this[i]: 0.0).reduce((a, b) => a + b);
   double toPercent() =>
       (toBalance() < 0 || toAllowance() == 0) ? 0.0: toBalance() / toAllowance();
 
@@ -650,14 +626,14 @@ extension ListDoubleExt on List<double> {
     return calcAssets(maxIndex, initialAssets);
   }
   setDoubleList(SharedPreferences prefs, String key) {
-    for (var i = 0; i < this.length; i++) {
+    for (var i = 0; i < length; i++) {
       prefs.setDouble("$key$i", this[i]);
     }
     "${key.replaceAll("Key", "")}: $this".debugPrint();
   }
 
   List<AllowanceList> getAllowanceList(List<int> date, List<String> item) =>
-      List.generate(this.length, (i) => AllowanceList(date[i], item[i], this[i]));
+      List.generate(length, (i) => AllowanceList(date[i], item[i], this[i]));
 
   List<FlSpot> chartData(int index, int maxIndex, String startDate) =>
       List.generate(12, (int i) {
@@ -675,17 +651,17 @@ extension ListDoubleExt on List<double> {
 extension ListAllowanceListExt on List<AllowanceList> {
 
   List<int> getDateFromAllowanceList() =>
-      List.generate(this.length, (i) => this[i].date);
+      List.generate(length, (i) => this[i].date);
   List<String> getItemFromAllowanceList() =>
-      List.generate(this.length, (i) => this[i].item);
+      List.generate(length, (i) => this[i].item);
   List<double> getAmntFromAllowanceList() =>
-      List.generate(this.length, (i) => this[i].amnt);
+      List.generate(length, (i) => this[i].amnt);
 }
 
 extension ListIntExt on List<int> {
 
   setIntList(SharedPreferences prefs, String key) {
-    for (var i = 0; i < this.length; i++) {
+    for (var i = 0; i < length; i++) {
       prefs.setInt("$key$i", this[i]);
     }
     "${key.replaceAll("Key", "")}: $this".debugPrint();
@@ -695,12 +671,12 @@ extension ListIntExt on List<int> {
 extension ListListDoubleExt on List<List<double>> {
 
   int calcMaxIndex() {
-    "maxIndex: ${this.length - 1}".debugPrint();
-    return this.length - 1;
+    "maxIndex: ${length - 1}".debugPrint();
+    return length - 1;
   }
   List<int> calcListNumber() {
-    "listNumber: ${List.generate(this.length, (i) => this[i].length)}".debugPrint();
-    return List.generate(this.length, (i) => this[i].length);
+    "listNumber: ${List.generate(length, (i) => this[i].length)}".debugPrint();
+    return List.generate(length, (i) => this[i].length);
   }
   List<double> calcPercent(int maxIndex) {
     "percent: ${List.generate(maxIndex + 1, (i) => this[i].toPercent())}".debugPrint();
