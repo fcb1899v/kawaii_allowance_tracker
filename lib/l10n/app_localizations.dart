@@ -98,37 +98,37 @@ abstract class AppLocalizations {
     Locale('ja')
   ];
 
-  /// App name
+  /// No description provided for @appTitle.
   ///
   /// In en, this message translates to:
   /// **'Kawaii Allowance Tracker'**
   String get appTitle;
 
-  ///
+  /// No description provided for @thisApp.
   ///
   /// In en, this message translates to:
   /// **'A simple app for managing your allowance.'**
   String get thisApp;
 
-  /// Bottom label of list
+  /// No description provided for @list.
   ///
   /// In en, this message translates to:
   /// **'List'**
   String get list;
 
-  /// Bottom label of summary
+  /// No description provided for @summary.
   ///
   /// In en, this message translates to:
   /// **'Summary'**
   String get summary;
 
-  /// Allowance
+  /// No description provided for @allowance.
   ///
   /// In en, this message translates to:
   /// **'Allowance'**
   String get allowance;
 
-  /// Spend money
+  /// No description provided for @spend.
   ///
   /// In en, this message translates to:
   /// **'Spend'**
@@ -146,91 +146,91 @@ abstract class AppLocalizations {
   /// **'Item'**
   String get item;
 
-  /// List of amount title label
+  /// No description provided for @amnt.
   ///
   /// In en, this message translates to:
   /// **'Amount'**
   String get amnt;
 
-  /// Input list
+  /// No description provided for @input.
   ///
   /// In en, this message translates to:
   /// **'Input'**
   String get input;
 
-  /// Delete list
+  /// No description provided for @delete.
   ///
   /// In en, this message translates to:
   /// **'Delete'**
   String get delete;
 
-  /// Input text field
+  /// No description provided for @enter.
   ///
   /// In en, this message translates to:
   /// **'Enter'**
   String get enter;
 
-  /// Open picker
+  /// No description provided for @select.
   ///
   /// In en, this message translates to:
   /// **'Select'**
   String get select;
 
-  /// OK button
+  /// No description provided for @ok.
   ///
   /// In en, this message translates to:
   /// **'OK'**
   String get ok;
 
-  /// No button
+  /// No description provided for @no.
   ///
   /// In en, this message translates to:
   /// **'No'**
   String get no;
 
-  /// Cancel button
+  /// No description provided for @cancel.
   ///
   /// In en, this message translates to:
   /// **'Cancel'**
   String get cancel;
 
-  /// Not set
+  /// No description provided for @notSet.
   ///
   /// In en, this message translates to:
   /// **'Not set'**
   String get notSet;
 
-  /// Balance label
+  /// No description provided for @balance.
   ///
   /// In en, this message translates to:
   /// **'Balance '**
   String get balance;
 
-  /// Settings of Asset
+  /// No description provided for @assets.
   ///
   /// In en, this message translates to:
   /// **'Assets'**
   String get assets;
 
-  /// Money spent label
+  /// No description provided for @moneySpent.
   ///
   /// In en, this message translates to:
   /// **'Money spent'**
   String get moneySpent;
 
-  /// Money left label
+  /// No description provided for @moneyLeft.
   ///
   /// In en, this message translates to:
   /// **'Money left'**
   String get moneyLeft;
 
-  /// Month
+  /// No description provided for @month.
   ///
   /// In en, this message translates to:
   /// **'[Month]'**
   String get month;
 
-  /// Day hint
+  /// No description provided for @settingDateHint.
   ///
   /// In en, this message translates to:
   /// **'Select the day'**
@@ -242,85 +242,85 @@ abstract class AppLocalizations {
   /// **'Enter the Item'**
   String get settingItemHint;
 
-  /// amount hint
+  /// No description provided for @settingAmntHint.
   ///
   /// In en, this message translates to:
   /// **'Enter the amount'**
   String get settingAmntHint;
 
-  /// reason hint
+  /// No description provided for @settingReasonHint.
   ///
   /// In en, this message translates to:
   /// **'Enter the reason'**
   String get settingReasonHint;
 
-  /// select unit hint
+  /// No description provided for @selectUnitHint.
   ///
   /// In en, this message translates to:
   /// **'Select the unit'**
   String get selectUnitHint;
 
-  /// modify date title
+  /// No description provided for @modifyDateTitle.
   ///
   /// In en, this message translates to:
   /// **'Modify the date'**
   String get modifyDateTitle;
 
-  /// modify item title
+  /// No description provided for @modifyItemTitle.
   ///
   /// In en, this message translates to:
   /// **'Modify the item'**
   String get modifyItemTitle;
 
-  /// modify amount title
+  /// No description provided for @modifyAmntTitle.
   ///
   /// In en, this message translates to:
   /// **'Modify the amount'**
   String get modifyAmntTitle;
 
-  /// Title label
+  /// No description provided for @s.
   ///
   /// In en, this message translates to:
   /// **'\'s'**
   String get s;
 
-  /// Title label
+  /// No description provided for @tracker.
   ///
   /// In en, this message translates to:
   /// **'Allowance Tracker'**
   String get tracker;
 
-  /// Setting your name
+  /// No description provided for @name.
   ///
   /// In en, this message translates to:
   /// **'Your name'**
   String get name;
 
-  /// Setting name title
+  /// No description provided for @settingNameTitle.
   ///
   /// In en, this message translates to:
   /// **'Setting your name'**
   String get settingNameTitle;
 
-  /// Setting name hint
+  /// No description provided for @settingNameHint.
   ///
   /// In en, this message translates to:
   /// **'Enter your name'**
   String get settingNameHint;
 
-  /// Setting currency unit
+  /// No description provided for @unit.
   ///
   /// In en, this message translates to:
   /// **'Currency unit'**
   String get unit;
 
-  /// Setting currency unit title
+  /// No description provided for @settingUnitTitle.
   ///
   /// In en, this message translates to:
   /// **'Setting currency unit'**
   String get settingUnitTitle;
 
-  /// Allowance
+  /// No description provided for @initialAssets.
   ///
   /// In en, this message translates to:
   /// **'Initial assets'**
@@ -338,193 +338,193 @@ abstract class AppLocalizations {
   /// **'Enter your initial assets'**
   String get settingInitialAssetsHint;
 
-  /// Allowance
+  /// No description provided for @targetAssets.
   ///
   /// In en, this message translates to:
   /// **'Target assets'**
   String get targetAssets;
 
-  /// Setting target assets title
+  /// No description provided for @settingTargetAssetsTitle.
   ///
   /// In en, this message translates to:
   /// **'Setting your target assets'**
   String get settingTargetAssetsTitle;
 
-  /// Setting target assets hint
+  /// No description provided for @settingTargetAssetsHint.
   ///
   /// In en, this message translates to:
   /// **'Enter your target assets'**
   String get settingTargetAssetsHint;
 
-  /// Start date
+  /// No description provided for @startDate.
   ///
   /// In en, this message translates to:
   /// **'Start date'**
   String get startDate;
 
-  /// Privacy policy
+  /// No description provided for @privacyPolicy.
   ///
   /// In en, this message translates to:
   /// **'Privacy policy'**
   String get privacyPolicy;
 
-  /// Version
+  /// No description provided for @version.
   ///
   /// In en, this message translates to:
   /// **'Version'**
   String get version;
 
-  /// Success
+  /// No description provided for @success.
   ///
   /// In en, this message translates to:
   /// **'Success'**
   String get success;
 
-  /// Error
+  /// No description provided for @error.
   ///
   /// In en, this message translates to:
   /// **'Error'**
   String get error;
 
-  /// Login
+  /// No description provided for @login.
   ///
   /// In en, this message translates to:
   /// **'Login'**
   String get login;
 
-  /// Logout
+  /// No description provided for @logout.
   ///
   /// In en, this message translates to:
   /// **'Logout'**
   String get logout;
 
-  /// Signup
+  /// No description provided for @signup.
   ///
   /// In en, this message translates to:
   /// **'Signup'**
   String get signup;
 
-  /// Delete Account
+  /// No description provided for @deleteAccount.
   ///
   /// In en, this message translates to:
   /// **'Delete Account'**
   String get deleteAccount;
 
-  /// Try Login
+  /// No description provided for @tryLogin.
   ///
   /// In en, this message translates to:
   /// **'Login'**
   String get tryLogin;
 
-  /// Try Logout
+  /// No description provided for @tryLogout.
   ///
   /// In en, this message translates to:
   /// **'Logout'**
   String get tryLogout;
 
-  /// Try Signup
+  /// No description provided for @trySignup.
   ///
   /// In en, this message translates to:
   /// **'Signup'**
   String get trySignup;
 
-  /// Delete your account?
+  /// No description provided for @tryDeleteAccount.
   ///
   /// In en, this message translates to:
   /// **'Delete your account?'**
   String get tryDeleteAccount;
 
-  /// Input email
+  /// No description provided for @email.
   ///
   /// In en, this message translates to:
   /// **'Email'**
   String get email;
 
-  /// Input password
+  /// No description provided for @password.
   ///
   /// In en, this message translates to:
   /// **'Password'**
   String get password;
 
-  /// Input confirm password
+  /// No description provided for @confirmPass.
   ///
   /// In en, this message translates to:
   /// **'Confirm Password'**
   String get confirmPass;
 
-  /// Input email hint
+  /// No description provided for @inputEmailHint.
   ///
   /// In en, this message translates to:
   /// **'Enter your e-mail'**
   String get inputEmailHint;
 
-  /// Input password hint
+  /// No description provided for @inputPasswordHint.
   ///
   /// In en, this message translates to:
   /// **'8+ chars (alnum & !@#\$&~)'**
   String get inputPasswordHint;
 
-  /// Input confirm password hint
+  /// No description provided for @inputConfirmPassHint.
   ///
   /// In en, this message translates to:
   /// **'Re-enter the password'**
   String get inputConfirmPassHint;
 
-  /// Login successful
+  /// No description provided for @loginSuccess.
   ///
   /// In en, this message translates to:
   /// **'Login Successful'**
   String get loginSuccess;
 
-  /// Login failed
+  /// No description provided for @loginFailed.
   ///
   /// In en, this message translates to:
   /// **'Login Failed'**
   String get loginFailed;
 
-  /// Signup successful
+  /// No description provided for @signupSuccess.
   ///
   /// In en, this message translates to:
   /// **'Signup Successful'**
   String get signupSuccess;
 
-  /// Signup failed
+  /// No description provided for @signupFailed.
   ///
   /// In en, this message translates to:
   /// **'Signup Failed'**
   String get signupFailed;
 
-  /// Logout successful
+  /// No description provided for @logoutSuccess.
   ///
   /// In en, this message translates to:
   /// **'Logout Successful'**
   String get logoutSuccess;
 
-  /// Logout failed
+  /// No description provided for @logoutFailed.
   ///
   /// In en, this message translates to:
   /// **'Logout Failed'**
   String get logoutFailed;
 
-  /// Delete Account successful
+  /// No description provided for @deleteAccountSuccess.
   ///
   /// In en, this message translates to:
   /// **'Delete Account Successful'**
   String get deleteAccountSuccess;
 
-  /// Delete Account failed
+  /// No description provided for @deleteAccountFailed.
   ///
   /// In en, this message translates to:
   /// **'Delete Account Failed'**
   String get deleteAccountFailed;
 
-  /// Send password reset email error
+  /// No description provided for @sendEmailError.
   ///
   /// In en, this message translates to:
   /// **'Send mail error'**
   String get sendEmailError;
 
-  /// Sent verified email
+  /// No description provided for @sentVerifiedEmail.
   ///
   /// In en, this message translates to:
   /// **'Sent verified email'**
@@ -536,7 +536,7 @@ abstract class AppLocalizations {
   /// **'Can\'t send verified email'**
   String get cantSendVerifiedEmail;
 
-  /// Sent password reset email
+  /// No description provided for @sentPassResetEmail.
   ///
   /// In en, this message translates to:
   /// **'Sent password reset email'**
@@ -548,133 +548,133 @@ abstract class AppLocalizations {
   /// **'Can\'t send password reset email'**
   String get cantSendPassResetEmail;
 
-  /// Without login button
+  /// No description provided for @useWithoutLogin.
   ///
   /// In en, this message translates to:
   /// **'Use without logging in'**
   String get useWithoutLogin;
 
-  /// Forgot password button
+  /// No description provided for @forgotPass.
   ///
   /// In en, this message translates to:
   /// **'Forgot password?'**
   String get forgotPass;
 
-  /// Password reset title
+  /// No description provided for @passwordReset.
   ///
   /// In en, this message translates to:
   /// **'Password reset'**
   String get passwordReset;
 
-  /// Invalid email
+  /// No description provided for @invalidEmail.
   ///
   /// In en, this message translates to:
   /// **'The email address is badly formatted'**
   String get invalidEmail;
 
-  /// Wrong password
+  /// No description provided for @wrongPassword.
   ///
   /// In en, this message translates to:
   /// **'The password is wrong'**
   String get wrongPassword;
 
-  /// User not found
+  /// No description provided for @userNotFound.
   ///
   /// In en, this message translates to:
   /// **'The email address is not registered'**
   String get userNotFound;
 
-  /// User disabled
+  /// No description provided for @userDisabled.
   ///
   /// In en, this message translates to:
   /// **'The email address has been disabled'**
   String get userDisabled;
 
-  /// Email already in use
+  /// No description provided for @emailAlreadyInUse.
   ///
   /// In en, this message translates to:
   /// **'The email address has been already in use'**
   String get emailAlreadyInUse;
 
-  /// Weak password
+  /// No description provided for @weakPassword.
   ///
   /// In en, this message translates to:
   /// **'The password is too weak'**
   String get weakPassword;
 
-  /// Too many requests
+  /// No description provided for @tooManyRequests.
   ///
   /// In en, this message translates to:
   /// **'Please try again later'**
   String get tooManyRequests;
 
-  /// Operation not allowed
+  /// No description provided for @operationNotAllowed.
   ///
   /// In en, this message translates to:
   /// **'Please try again later'**
   String get operationNotAllowed;
 
-  /// Login default error message
+  /// No description provided for @loginErrorMessage.
   ///
   /// In en, this message translates to:
   /// **'Failed to Login'**
   String get loginErrorMessage;
 
-  /// Signup default error message
+  /// No description provided for @signupErrorMessage.
   ///
   /// In en, this message translates to:
   /// **'Failed to Signup'**
   String get signupErrorMessage;
 
-  /// Store your data after login
+  /// No description provided for @storeDataAfterLogin.
   ///
   /// In en, this message translates to:
   /// **'Store your data'**
   String get storeDataAfterLogin;
 
-  /// Get your data after login
+  /// No description provided for @getStoredData.
   ///
   /// In en, this message translates to:
   /// **'Get your stored data'**
   String get getStoredData;
 
-  /// Store your data after login
+  /// No description provided for @storeYourData.
   ///
   /// In en, this message translates to:
   /// **'Store your data'**
   String get storeYourData;
 
-  /// Successfully got your stored data
+  /// No description provided for @getDataSuccess.
   ///
   /// In en, this message translates to:
   /// **'Got your stored data successfully'**
   String get getDataSuccess;
 
-  /// Successfully stored your data
+  /// No description provided for @storeDataSuccess.
   ///
   /// In en, this message translates to:
   /// **'Stored your data successfully'**
   String get storeDataSuccess;
 
-  /// Failed to get your stored data
+  /// No description provided for @getDataFailed.
   ///
   /// In en, this message translates to:
   /// **'Failed to get your stored data'**
   String get getDataFailed;
 
-  /// Failed to store your data
+  /// No description provided for @storeDataFailed.
   ///
   /// In en, this message translates to:
   /// **'Failed to store your data'**
   String get storeDataFailed;
 
-  /// No stored data available
+  /// No description provided for @noDataAvailable.
   ///
   /// In en, this message translates to:
   /// **'No stored data available'**
   String get noDataAvailable;
 
-  /// Confirmation
+  /// No description provided for @confirmation.
   ///
   /// In en, this message translates to:
   /// **'Confirmation'**
@@ -686,13 +686,13 @@ abstract class AppLocalizations {
   /// **'Stocked data has been found.\nDo you want to restore it?\nThe current data will be overwritten.'**
   String get confirmGetServerData;
 
-  /// Confirm store data
+  /// No description provided for @confirmStoreLocalData.
   ///
   /// In en, this message translates to:
   /// **'Do you want to restore current data?\nThe previous data will be overwritten.'**
   String get confirmStoreLocalData;
 
-  /// Confirm delete account
+  /// No description provided for @confirmDeleteAccount.
   ///
   /// In en, this message translates to:
   /// **'The authentication credentials and stored data will be deleted.\nPlease be careful as recovery will not be possible once deleted.'**

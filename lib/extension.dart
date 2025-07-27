@@ -8,6 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'l10n/app_localizations.dart' show AppLocalizations;
 import 'constant.dart';
 
+/// Allowance data model class
 class AllowanceList {
   final int date;
   final String item;
@@ -19,32 +20,44 @@ class AllowanceList {
       );
 }
 
+/// BuildContext extensions for UI utilities and localization
 extension ContextExt on BuildContext {
 
-  //Common
+  // Common navigation methods
   void pushPage(String page) => Navigator.of(this).pushNamedAndRemoveUntil(page, (_) => false);
   void popPage() => Navigator.pop(this);
-  //Language
+  
+  // Language and localization methods
   String lang() => Localizations.localeOf(this).languageCode;
   int inputItemMaxLength() => (lang() == "ja") ? inputJaItemMaxLength: inputEnItemMaxLength;
   int inputNameMaxLength() => (lang() == "ja") ? inputJaNameMaxLength: inputEnNameMaxLength;
   String customEnFont() => (lang() == "ja") ? 'defaultFont': 'enAccent';
   String customJaFont() => (lang() == "ja") ? 'jaAccent': 'defaultFont';
   String customAccentFont() => (lang() == "ja") ? 'jaAccent': 'enAccent';
-  double appBarFontSize() => (lang() == "ja") ? appBarJaFontSize: appBarEnFontSize;
   double alertTitleFontSize() => (lang() == "ja") ? alertTitleJaSize: alertTitleEnSize;
   double alertFontSize() => (lang() == "ja") ? alertFontJaSize: alertFontEnSize;
   String defaultUnit() => (lang() == "ja") ? "¥": "\$";
   List<String> unitList() => (lang() == "ja") ? jaUnitList: enUnitList;
   FontWeight customWeight() => (lang() == "ja") ? FontWeight.normal: FontWeight.bold;
-  //Size
+  
+  // Screen size and layout methods
   double width() => MediaQuery.of(this).size.width;
-  double maxWidth() => (width() > 660) ? 660: width();
   double height() => MediaQuery.of(this).size.height;
+  double maxWidth() => (width() > 600) ? 600: width();
   double top() => MediaQuery.of(this).padding.top;
   double bottom() => MediaQuery.of(this).padding.bottom;
   double displayHeight() => height() - top() - bottom() - admobHeight();
-  //Drawer
+  double shadowBlur() => maxWidth() * 0.005;
+  double shadowOffset() => maxWidth() * 0.005;
+
+  // AppBar styling methods
+  double appBarHeight() => maxWidth() * 0.15;
+  double appBarFontSize() => maxWidth() * ((lang() == "ja") ? 0.07: 0.08);
+  double appBarTitleIconSpace() => maxWidth() * 0.04;
+  double appBarIconSize() => maxWidth() * 0.08;
+  double appBarBottomLineWidth() => maxWidth() * 0.01;
+
+  // Drawer styling methods
   double drawerWidth() => maxWidth() * 0.9;
   double drawerTitleHeightRate(String name) =>
       (drawerTitle(name) == appTitle()) ? 0.22: 0.33;
@@ -60,7 +73,8 @@ extension ContextExt on BuildContext {
     topRight: Radius.circular(drawerTitleBorderRadius()),
     bottomRight: Radius.circular(drawerTitleBorderRadius()),
   );
-  //Main Body
+
+  // Main body layout methods
   double mainBodyMarginTop() => height() * 0.03;
   double balanceFontSize() => maxWidth() * (lang() == "ja" ? 0.07: 0.09);
   double balanceUnitSize() => maxWidth() * 0.10;
@@ -74,7 +88,8 @@ extension ContextExt on BuildContext {
   double plusMinusIconSize() => height() * 0.032;
   double plusMinusSpace() => height() * 0.2;
   double monthYearFontSize() => maxWidth() * 0.07;
-  //Chart & SpreadSheet
+
+  // Spreadsheet styling methods
   double scrollViewMarginHorizontal() => width() * 0.05;
   double scrollViewMarginVertical() => height() * 0.015;
   double spreadSheetCornerRadius() => height() * 0.018;
@@ -83,7 +98,8 @@ extension ContextExt on BuildContext {
   double spreadSheetRowHeight() => height() * 0.05;
   double spreadSheetColumnSpacing() => height() * 0.015;
   double deleteButtonWidth() => height() * 0.03;
-  //Chart
+
+  // Chart styling methods
   double chartHeight() => height() * 0.40;
   double chartWidth() => (width() > 1000) ? 1000: width();
   double chartBarWidth() => height() * 0.005;
@@ -101,7 +117,8 @@ extension ContextExt on BuildContext {
   double chartLeftReservedSize() => width() * 0.12;
   double chartBottomReservedSize() => width() * 0.06;
   double chartAxisFontSize() => width() * 0.03;
-  //Floating Action Button
+
+  // Floating action button styling methods
   double floatingActionBottomMargin() => admobHeight() + height() * 0.02;
   double floatingActionButtonSize() => maxWidth() * 0.12;
   double floatingActionIconSize() => maxWidth() * 0.08;
@@ -112,7 +129,8 @@ extension ContextExt on BuildContext {
   double speedDialSpaceFontSize() => maxWidth() * 0.04;
   double speedDialSpacing() => maxWidth() * 0.01;
   double speedDialSpaceHeight() => maxWidth() * 0.04;
-  //Login
+
+  // Login page styling methods
   double loginTitleSize() => maxWidth() * 0.075;
   double loginIconSize() => maxWidth() * 0.07;
   double loginFontSize() => maxWidth() * 0.045;
@@ -137,10 +155,12 @@ extension ContextExt on BuildContext {
   double loginVisibleMarginTop() => maxWidth() * 0.04;
   double loginVisibleMarginRight() => maxWidth() * 0.02;
   double snackBarMargin() => maxWidth() * 0.03;
-  //Admob
+
+  // AdMob sizing methods
   double admobHeight() => (height() < 600) ? 50: (height() < 1000) ? (height() / 8 - 25): 100;
   double admobWidth() => width();
-  // Localize String
+
+  // Localized string getters
   String appTitle() => AppLocalizations.of(this)!.appTitle;
   String thisApp() => AppLocalizations.of(this)!.thisApp;
   String s() => AppLocalizations.of(this)!.s;
@@ -164,7 +184,8 @@ extension ContextExt on BuildContext {
   String settingItemHint() => AppLocalizations.of(this)!.settingItemHint;
   String settingAmntHint() => AppLocalizations.of(this)!.settingAmntHint;
   String settingReasonHint() => AppLocalizations.of(this)!.settingReasonHint;
-  //Drawer
+  
+  // Drawer localized strings
   String name() => AppLocalizations.of(this)!.name;
   String settingNameTitle() => AppLocalizations.of(this)!.settingNameTitle;
   String settingNameHint() => AppLocalizations.of(this)!.settingNameHint;
@@ -175,7 +196,8 @@ extension ContextExt on BuildContext {
   String targetAssets() => AppLocalizations.of(this)!.targetAssets;
   String settingTargetAssetsTitle() => AppLocalizations.of(this)!.settingTargetAssetsTitle;
   String startDate() => AppLocalizations.of(this)!.startDate;
-  //Login
+  
+  // Login localized strings
   String success() => AppLocalizations.of(this)!.success;
   String error() => AppLocalizations.of(this)!.error;
   String login() => AppLocalizations.of(this)!.login;
@@ -196,7 +218,8 @@ extension ContextExt on BuildContext {
   String ok() => AppLocalizations.of(this)!.ok;
   String no() => AppLocalizations.of(this)!.no;
   String canceled() => AppLocalizations.of(this)!.cancel;
-  //Auth
+  
+  // Auth error localized strings
   String invalidEmail() => AppLocalizations.of(this)!.invalidEmail;
   String wrongPassword() => AppLocalizations.of(this)!.wrongPassword;
   String userNotFound() => AppLocalizations.of(this)!.userNotFound;
@@ -220,7 +243,8 @@ extension ContextExt on BuildContext {
   String cantSendVerifiedEmail() => AppLocalizations.of(this)!.cantSendVerifiedEmail;
   String sentPassResetMail() => AppLocalizations.of(this)!.sentPassResetEmail;
   String cantSendPassResetEmail() => AppLocalizations.of(this)!.cantSendPassResetEmail;
-  //Firestore
+  
+  // Firestore localized strings
   String storeDataAfterLogin() => AppLocalizations.of(this)!.storeDataAfterLogin;
   String getStoredData() => AppLocalizations.of(this)!.getStoredData;
   String storeYourData() => AppLocalizations.of(this)!.storeYourData;
@@ -234,15 +258,15 @@ extension ContextExt on BuildContext {
   String confirmStoreLocalData() => AppLocalizations.of(this)!.confirmStoreLocalData;
   String confirmDeleteAccount() => AppLocalizations.of(this)!.confirmDeleteAccount;
 
-  //Common
+  // Common utility methods
   String orNotSet(String text) => (text == "") ? notSet(): text;
   String judgeText(String judge) => (judge == "ok") ? ok(): (judge == "no") ? no(): canceled();
 
-  //AppBar
+  // AppBar text methods
   String appBarTitleText(bool isSelectSummary) => (isSelectSummary) ? list(): summary();
   String popupMenuText(bool isSelectSummary) => (isSelectSummary) ? tryLogout(): tryLogin();
 
-  //Drawer
+  // Drawer text methods
   String drawerTitle(String name) =>
       (name.isEmpty || name == notSet()) ? appTitle():
       "$name${s()}\n${tracker()}";
@@ -257,7 +281,8 @@ extension ContextExt on BuildContext {
       (!isLogin) ? storeDataAfterLogin():
       (isStoreData) ? storeYourData():
       getStoredData();
-  //SpreadSheet
+  
+  // Spreadsheet text methods
   String spreadSheetAlertTitleText(String input) =>
       (input == "item") ? modifyItemTitle():
       (input == "amnt") ? modifyAmntTitle():
@@ -268,12 +293,14 @@ extension ContextExt on BuildContext {
       (lang() == "ja") ? Locale('ja', 'JP'): Locale('en', 'US');
   String speedDialTitle(bool isSpend) =>
       (isSpend) ? spends(): allowance();
-  //Chart
+  
+  // Chart text methods
   String chartTitle(Color color) =>
       (color == pinkColor) ? assets():
       (color == blueColor) ? moneySpent():
       moneyLeft();
-  //Login
+  
+  // Login text methods
   String loginAppBarTitleText(bool isMoveSignUp) =>
       (isMoveSignUp) ? signup(): login();
   String loginFormLabel(String input) =>
@@ -298,18 +325,21 @@ extension ContextExt on BuildContext {
       cantSendPassResetEmail();
 }
 
+/// String extensions for data conversion and SharedPreferences operations
 extension StringExt on String {
 
-  //common
+  // Debug print method
   void debugPrint() {
     if (kDebugMode) print(this);
   }
 
-  //
+  // Data conversion methods
   int toInt(int defaultInt) =>
       (int.parse(this) >= 0) ? int.parse(this): defaultInt;
   double toDouble(double defaultDouble) =>
       (double.parse(this) >= 0.0) ? double.parse(this): defaultDouble;
+  
+  // Convert string to 2D list of dates
   List<List<int>> toListListDate() {
     final originalData = replaceAll("[[", "").replaceAll("]]", "");
     List<String> outerList = originalData.split("],[");
@@ -321,6 +351,8 @@ extension StringExt on String {
     }
     return data;
   }
+  
+  // Convert string to 2D list of items
   List<List<String>> toListListItem() {
     final originalData = replaceAll("[[", "").replaceAll("]]", "");
     List<String> outerList = originalData.split("],[");
@@ -332,6 +364,8 @@ extension StringExt on String {
     }
     return data;
   }
+  
+  // Convert string to 2D list of amounts
   List<List<double>> toListListAmnt() {
     final originalData = replaceAll("[[", "").replaceAll("]]", "");
     List<String> outerList = originalData.split("],[");
@@ -344,7 +378,7 @@ extension StringExt on String {
     return data;
   }
 
-  //SharedPreferences this is key
+  // SharedPreferences setter methods
   setSharedPrefString(SharedPreferences prefs, String value) {
     "${replaceAll("Key","")}: $value".debugPrint();
     prefs.setString(this, value);
@@ -361,6 +395,8 @@ extension StringExt on String {
     "${replaceAll("Key","")}: $value".debugPrint();
     prefs.setBool(this, value);
   }
+  
+  // SharedPreferences getter methods
   getSharedPrefString(SharedPreferences prefs, String defaultString) {
     "${replaceAll("Key","")}: ${prefs.getString(this) ?? defaultString}".debugPrint();
     return prefs.getString(this) ?? defaultString;
@@ -377,6 +413,8 @@ extension StringExt on String {
     "${replaceAll("Key","")}: ${prefs.getBool(this) ?? defaultBool}".debugPrint();
     return prefs.getBool(this) ?? defaultBool;
   }
+  
+  // List getter methods for SharedPreferences
   getIntList(SharedPreferences prefs, int maxIndex) {
     "${replaceAll("Key","")}: ${List.generate(maxIndex + 1, (i) => prefs.getInt("$this$i") ?? 1)}".debugPrint();
     return List.generate(maxIndex + 1, (i) => prefs.getInt("$this$i") ?? 1);
@@ -385,6 +423,8 @@ extension StringExt on String {
     "${replaceAll("Key","")}: ${List.generate(maxIndex + 1, (i) => prefs.getDouble("$this$i") ?? 0.0)}".debugPrint();
     return List.generate(maxIndex + 1, (i) => prefs.getDouble("$this$i") ?? 0.0);
   }
+  
+  // Allowance data getter methods
   getAllowanceDate(SharedPreferences prefs, int maxIndex, List<int> allowanceDate) {
     List<List<int>> data = List.generate(maxIndex + 1, (i) =>
       List.generate(allowanceDate[i], (j) => prefs.getInt("$this${i}_$j") ?? 0)
@@ -406,7 +446,8 @@ extension StringExt on String {
     "AllowanceAmnt: $data".debugPrint();
     return data;
   }
-  //Input SpeedDial
+  
+  // Input validation methods for SpeedDial
   bool setIsInput(bool isDay) {
     "inputFlag: ${RegExp(isDay ? dayValidation: amountValidation).hasMatch(this)}".debugPrint();
     return RegExp(isDay ? dayValidation: amountValidation).hasMatch(this);
@@ -415,9 +456,9 @@ extension StringExt on String {
     "inputDay: ${isInput ? toInt(0): 0}".debugPrint();
     return isInput ? toInt(0): 0;
   }
-  bool setIsDayInput(bool isInput) {
-    "isDayInput: ${(isInput && toInt(0).correctDay() > 0)}".debugPrint();
-    return (isInput && toInt(0).correctDay() > 0);
+  bool setIsDayInput(bool isInput, int year) {
+    "isDayInput: ${(isInput && toInt(0).correctDay(year) > 0)}".debugPrint();
+    return (isInput && toInt(0).correctDay(year) > 0);
   }
   String setInputItem(BuildContext context, bool isInput, bool isSpend) {
     "inputItem: ${(isInput) ? this: ""}".debugPrint();
@@ -440,47 +481,50 @@ extension StringExt on String {
     return isInput ? (toDouble(0.0) >= 0.0) : false;
   }
 
-  //unit
+  // Currency unit methods
   int numberDigit() => (this == '¥') ? 0: 2;
 
-  //day
+  // Date formatting methods
   String addZero() => (toInt(0) < 10) ? "0$this": this;
   int removeZero() => (this[0] == "0") ? this[1].toInt(1): toInt(1);
 
-  //startDate
+  // Start date parsing methods
   int toDay() => split("/")[1].removeZero();
   int toMonth() => split("/")[0].removeZero();
   int toYear() => split("/")[2].toInt(2023);
   int toDateInt() => toYear() * 10000 + toMonth() * 100 + toDay();
+  int currentIndex() => 12 * (DateTime.now().year - toYear()) + (DateTime.now().month - toMonth());
 
+  // Date calculation methods
   DateTime toThisDate(int index) =>
       DateTime(toYear() + (index + toMonth()) ~/ 12, (toMonth() + index) % 12, toDay());
   DateTime toThisMonthFirstDay(int index) =>
       DateTime(toThisDate(index).year, toThisDate(index).month, 1);
   DateTime toThisMonthLastDay(int index) =>
-      DateTime(toThisDate(index).year, toThisDate(index).month, toThisDate(index).month.lastDay());
+      DateTime(toThisDate(index).year, toThisDate(index).month, toThisDate(index).month.lastDay(toThisDate(index).year));
   String stringThisMonthYear(int index) => ""
       "${toThisDate(index).month.toString().addZero()}/${toThisDate(index).year}";
   String stringThisYear(int index) =>
       "${toThisDate(index).year}";
   String stringThisMonthDay(int index, int day) =>
-      (day > 0 && day < toThisDate(index).month.lastDay()) ? "${toThisDate(index).month}/${day.toString().addZero()}": "-";
+      (day > 0 && day < toThisDate(index).month.lastDay(toThisDate(index).year) + 1) ? "${toThisDate(index).month}/${day.toString().addZero()}": "-";
+  
+  // Navigation color methods
   Color yearPlusMinusColor(bool isPlus, int index, int maxIndex) =>
       ((!isPlus && (toThisDate(index).year == toThisDate(0).year)) || (isPlus && (toThisDate(index).year >= toThisDate(maxIndex).year))).selectButtonColor();
   Color monthPlusMinusColor(bool isPlus, int index) =>
       (!isPlus && (index == 0)).selectButtonColor();
+  
+  // Chart data methods
   int toTargetIndex(int index, int i) =>
       i - toMonth() + 1 + 12 * (toThisDate(index).year - toYear());
   bool isNotExistChartData(int index, int maxIndex, double spotX) =>
       (toTargetIndex(index, (spotX - 1).toInt()) < 0) || (toTargetIndex(index, (spotX - 1).toInt()) > maxIndex);
 
-  ///input
-  //drawer
+  // UI icon and color methods
   IconData drawerAlertIcon() => (this == "name") ? nameIcon: amntIcon;
   Color drawerAlertColor() => (this == "initialAssets") ? pinkColor: purpleColor;
-  //spreadsheet
   IconData spreadSheetAlertIcon() => (this == "amnt") ? amntIcon: itemIcon;
-  //login
   IconData loginPrefixIcon() =>
       (this == "email" || this == "reset") ? nameIcon: lockIcon;
   List<FilteringTextInputFormatter> loginInputFormat() =>
@@ -489,8 +533,10 @@ extension StringExt on String {
       ((this == "password" || this == "confirmPass") && !isVisible);
 }
 
+/// Map extensions for Firestore data handling
 extension MapDynamicExt on Map<String, dynamic> {
 
+  // Firestore data getter methods
   String getFirestoreString(SharedPreferences prefs, String key, String initialValue) {
     key.setSharedPrefString(prefs, this[key] ?? initialValue);
     return this[key] ?? initialValue;
@@ -513,9 +559,13 @@ extension MapDynamicExt on Map<String, dynamic> {
   }
 }
 
+/// Double extensions for formatting and calculations
 extension DoubleExt on double {
 
-  //amount
+  // Size methods
+  Size circleSize() => Size(this, this);
+
+  // Amount formatting methods
   double toAbs() =>
       (this < 0) ? this * (-1.0): this;
   String formatNumber(String unit) =>
@@ -530,6 +580,8 @@ extension DoubleExt on double {
       (this == 0.0 || item.isEmpty) ? "": item;
   Color amountColor() =>
       (this == 0.0) ? whiteColor: (this > 0.0) ? pinkColor: blueColor;
+  
+  // Chart Y-axis calculation
   double toChartY() =>
       (this == 0) ? 0:
       (this < 10) ? 10:
@@ -555,32 +607,45 @@ extension DoubleExt on double {
       ((targetAssets == null) ? this: max(this, targetAssets)).toChartY();
 }
 
+/// Boolean extensions for UI styling
 extension BoolExt on bool {
 
   Color speedDialColor() =>
-      (this) ? blueColor: pinkColor;   //isSpend
+      (this) ? blueColor: pinkColor;   // isSpend
   IconData speedDialIcon() =>
-      (this) ? itemIcon: unitIcon;     //isSpend
+      (this) ? itemIcon: unitIcon;     // isSpend
   Color selectButtonColor() =>
-      (this) ? grayColor: purpleColor; //isInput
+      (this) ? grayColor: purpleColor; // isInput
   double setPlusMinus() =>
-      (this) ? -1.0: 1.0;              //isSpend
+      (this) ? -1.0: 1.0;              // isSpend
   IconData visibleIcon() =>
       this ? eyeOnIcon: eyeOffIcon;
   Color visibleIconColor() =>
       this ? purpleColor: transpLightBlackColor;
 }
 
+/// Integer extensions for date calculations
 extension IntExt on int {
 
-  int lastDay() =>
-      (this == 2 || this == 4 || this == 6 || this == 9 || this == 12) ? 30: 31; //month
-  int correctDay() =>
-      (this > 0 && this < lastDay()) ? this: 0; //day
+  // Leap year calculation
+  bool isLeapYear() => (this % 4 == 0 && this % 100 != 0) || (this % 400 == 0);
+  
+  // Last day of month calculation
+  int lastDay(int year) =>
+    (this == 2 && year.isLeapYear()) ? 29:
+    (this == 2) ? 28:
+    [4, 6, 9, 11].contains(this) ? 30:
+    31;
+  
+  // Day validation methods
+  bool isCorrectDay(int year) => (this > 0 && this < lastDay(year) + 1);
+  int correctDay(int year) => isCorrectDay(year) ? this: 0;
 }
 
+/// DateTime extensions for formatting
 extension DateExt on DateTime? {
 
+  // Date formatting methods
   String toMonthString() => this!.month.toString().addZero();
   String toDayString() => this!.day.toString().addZero();
   String toYearString() => this!.year.toString();
@@ -593,15 +658,19 @@ extension DateExt on DateTime? {
   int toDateTimeInt() => int.parse(toDateTimeString());
 }
 
+/// List<Map> extensions for sorting
 extension ListMapExt on List<Map> {
 
+  // Sort allowance list by date
   Future<void> allowanceListSort() async {
     sort((a, b) => a["date"].compareTo(b["date"]));
   }
 }
 
+/// List<double> extensions for calculations and chart data
 extension ListDoubleExt on List<double> {
 
+  // Financial calculations
   double toAllowance() =>
       List.generate(length, (i) => (this[i] > 0.0) ? this[i]: 0.0).reduce((a, b) => a + b);
   double toBalance() =>
@@ -611,6 +680,7 @@ extension ListDoubleExt on List<double> {
   double toPercent() =>
       (toBalance() < 0 || toAllowance() == 0) ? 0.0: toBalance() / toAllowance();
 
+  // Assets calculation methods
   List<double> calcAssets(int maxIndex, double initialAssets) {
     List<double> assets = [];
     double sum = initialAssets;
@@ -632,13 +702,14 @@ extension ListDoubleExt on List<double> {
     "${key.replaceAll("Key", "")}: $this".debugPrint();
   }
 
+  // Allowance list conversion
   List<AllowanceList> getAllowanceList(List<int> date, List<String> item) =>
       List.generate(length, (i) => AllowanceList(date[i], item[i], this[i]));
 
+  // Chart data generation methods
   List<FlSpot> chartData(int index, int maxIndex, String startDate) =>
       List.generate(12, (int i) {
         int targetIndex = startDate.toTargetIndex(index, i);
-        // "i: $i, targetIndex: $targetIndex".debugPrint();
         return FlSpot((i + 1).toDouble(), (targetIndex < 0 || maxIndex < targetIndex || this[targetIndex] < 0) ? 0.0: this[targetIndex]);
       }).where((spot) =>
         !startDate.isNotExistChartData(index, maxIndex, spot.x)
@@ -648,8 +719,10 @@ extension ListDoubleExt on List<double> {
       List.generate(12, (int i) => FlSpot((i + 1).toDouble(), targetAssets));
 }
 
+/// List<AllowanceList> extensions for data extraction
 extension ListAllowanceListExt on List<AllowanceList> {
 
+  // Extract data from allowance list
   List<int> getDateFromAllowanceList() =>
       List.generate(length, (i) => this[i].date);
   List<String> getItemFromAllowanceList() =>
@@ -658,8 +731,10 @@ extension ListAllowanceListExt on List<AllowanceList> {
       List.generate(length, (i) => this[i].amnt);
 }
 
+/// List<int> extensions for SharedPreferences operations
 extension ListIntExt on List<int> {
 
+  // Save integer list to SharedPreferences
   setIntList(SharedPreferences prefs, String key) {
     for (var i = 0; i < length; i++) {
       prefs.setInt("$key$i", this[i]);
@@ -668,24 +743,34 @@ extension ListIntExt on List<int> {
   }
 }
 
+/// List<List<double>> extensions for financial calculations
 extension ListListDoubleExt on List<List<double>> {
 
+  // Calculate maximum index
   int calcMaxIndex() {
     "maxIndex: ${length - 1}".debugPrint();
     return length - 1;
   }
+  
+  // Calculate list numbers
   List<int> calcListNumber() {
     "listNumber: ${List.generate(length, (i) => this[i].length)}".debugPrint();
     return List.generate(length, (i) => this[i].length);
   }
+  
+  // Calculate percentages
   List<double> calcPercent(int maxIndex) {
     "percent: ${List.generate(maxIndex + 1, (i) => this[i].toPercent())}".debugPrint();
     return List.generate(maxIndex + 1, (i) => this[i].toPercent());
   }
+  
+  // Calculate balances
   List<double> calcBalance(int maxIndex) {
     "balance: ${List.generate(maxIndex + 1, (i) => this[i].toBalance())}".debugPrint();
     return List.generate(maxIndex + 1, (i) => this[i].toBalance());
   }
+  
+  // Calculate spends
   List<double> calcSpends(int maxIndex) {
     "spends: ${List.generate(maxIndex + 1, (i) => this[i].toSpends())}".debugPrint();
     return List.generate(maxIndex + 1, (i) => this[i].toSpends());

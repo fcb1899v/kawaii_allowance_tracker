@@ -1,7 +1,7 @@
 name: sweet_easy_pocket
 description: helps_manage_your_allowance_easily
 publish_to: 'none'
-version: 1.0.7+7
+version: 1.0.8+8
 
 environment:
   sdk: '>=2.18.0 <4.0.0'

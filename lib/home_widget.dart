@@ -1,237 +1,128 @@
-import 'dart:convert';
 import 'dart:math';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:app_tracking_transparency/app_tracking_transparency.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'extension.dart';
 import 'constant.dart';
-import 'login_widget.dart';
-import 'widget.dart';
+import 'common_widget.dart';
 
-///App Tracking Transparency
-initATTPlugin(BuildContext context) async {
-  final status = await AppTrackingTransparency.trackingAuthorizationStatus;
-  if (status == TrackingStatus.notDetermined && context.mounted) {
-    await showCupertinoDialog(context: context,
-      builder: (context) => CupertinoAlertDialog(
-        title: alertTitleText(context, context.appTitle()),
-        content: Text(context.thisApp()),
-        actions: [
-          CupertinoDialogAction(
-            child: alertJudgeButtonText(context, "ok", purpleColor),
-            onPressed: () => context.popPage(),
+/// Home widget class that provides UI components for the allowance tracker
+/// Contains all the widget methods for the main homepage including AppBar, Drawer,
+/// data table, and floating action buttons
+class HomeWidget {
+
+  final BuildContext context;
+  final bool isLogin;
+  const HomeWidget(this.context,{
+    required this.isLogin,
+  });
+
+  /// Get common widget instance for shared UI components
+  /// Provides access to common styling and widget methods
+  CommonWidget commonWidget() => CommonWidget(context);
+
+  /// AppBar widget for the main homepage
+  /// Displays title, navigation controls, and user action menu
+  PreferredSize homeAppBar({
+    required bool isLogin,
+    required bool isSummary,
+    required Function() onTapBack,
+    required Function() onTapLogout,
+  }) => PreferredSize(
+    preferredSize: Size.fromHeight(context.appBarHeight()),
+    child: AppBar(
+      automaticallyImplyLeading: !isSummary,
+      leading: (isSummary) ? IconButton(
+        icon: Icon(backIcon),
+        onPressed: onTapBack,
+      ): null,
+      iconTheme: IconThemeData(color: whiteColor),
+      title: Row(mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(isSummary ? summaryIcon : listIcon,
+            size: context.appBarIconSize(),
+            color: whiteColor,
+          ),
+          SizedBox(width: context.appBarTitleIconSpace()),
+          Text(context.appBarTitleText(!isSummary),
+            style: commonWidget().customAccentTextStyle(context.appBarFontSize(), true)
           )
-        ],
+        ]
       ),
-    );
-    await Future.delayed(const Duration(milliseconds: 200));
-    await AppTrackingTransparency.requestTrackingAuthorization();
-  }
-}
+      centerTitle: true,
+      backgroundColor: purpleColor,
+      bottom: commonWidget().appBarBottomLine(),
+      actions: [
+        (!isSummary) ? PopupMenuButton(
+          onSelected: (_) => (isLogin) ? SharedPreferences.getInstance().then((prefs) => onTapLogout()) : context.pushPage("/l"),
+          icon: Icon(moreIcon, color: whiteColor),
+          initialValue: context.popupMenuText(isLogin),
+          itemBuilder: (context) => [appBarPopupMenu(context.popupMenuText(isLogin))]
+        ) : SizedBox(width:kToolbarHeight),
 
-///Alert Dialog
-alertTitleText(BuildContext context, String title) =>
-    Container(
-      margin: EdgeInsets.only(bottom: alertTitleBottomMargin),
-      child: Text(title,
-        style: TextStyle(
-          color: transpBlackColor,
-          fontSize: context.alertTitleFontSize(),
-          fontFamily: "defaultFont",
-          fontWeight: FontWeight.bold,
+      ],
+    ),
+  );
+
+  /// Popup menu item for AppBar actions
+  /// Displays login/logout option with appropriate styling
+  PopupMenuItem appBarPopupMenu(String value) => PopupMenuItem(
+    padding: EdgeInsets.all(0.0),
+    value: 1,
+    child: Row(mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        SizedBox(width: 10),
+        Icon(nameIcon,
+          color: purpleColor,
+          size: alertIconSize,
         ),
-      ),
-    );
-
-ThemeData selectDateTheme(BuildContext context, bool isSpend) =>
-    Theme.of(context).copyWith(
-      colorScheme: ColorScheme.light(
-        primary: isSpend.setPlusMinus().amountColor(),
-        onPrimary: whiteColor,
-      ),
-      textTheme: TextTheme(
-        titleSmall: TextStyle(fontSize: 0.0),
-        labelSmall: TextStyle(fontSize: alertDateFontSize),
-        bodySmall: TextStyle(fontSize: alertDateFontSize),
-      ),
-      textButtonTheme: TextButtonThemeData(
-        style: TextButton.styleFrom(
-          foregroundColor: transpBlackColor,
-          textStyle: TextStyle(
+        Text(" $value  ",
+          style: TextStyle(
+            color: purpleColor,
             fontSize: context.alertFontSize(),
             fontFamily: "defaultFont",
             fontWeight: FontWeight.bold,
-          )
+          ),
         ),
-      ),
-    );
-
-///Shared Preference
-//Initialize
-initializeSharedPreferences() async =>
-  await SharedPreferences.getInstance();
-
-///Firestore
-//Set Data
-setDataFireStore(BuildContext context, SharedPreferences prefs, bool isLogin, bool isFirstSaveFinish, String key, dynamic setValue, int currentDateTime) async {
-  final currentTime = DateTime.now().toDateTimeInt();
-  if (isLogin && isFirstSaveFinish) {
-    try {
-      User? user = FirebaseAuth.instance.currentUser;
-      DocumentReference docRef = FirebaseFirestore.instance.collection('users').doc(user!.uid);
-      await docRef.set({key: setValue}, SetOptions(merge: true));
-      await docRef.set({"serverSaveDateTimeKey": currentDateTime}, SetOptions(merge: true));
-      await "serverSaveDateTimeKey".setSharedPrefInt(prefs, currentTime);
-    } on FirebaseException catch (e) {
-      '${e.code}: $e'.debugPrint();
-      if (context.mounted) showFailedSnackBar(context, context.storeDataFailed(), null);
-    }
-  }
-}
-
-setStringFirestore(BuildContext context, SharedPreferences prefs, bool isLogin, bool isFirstSaveFinish, String key, String setValue) async {
-  final currentDateTime = DateTime.now().toDateTimeInt();
-  await key.setSharedPrefString(prefs, setValue);
-  await "localSaveDateTimeKey".setSharedPrefInt(prefs, currentDateTime);
-  if (context.mounted) await setDataFireStore(context, prefs, isLogin, isFirstSaveFinish, key, setValue, currentDateTime);
-}
-
-setDoubleFirestore(BuildContext context, SharedPreferences prefs, bool isLogin, bool isFirstSaveFinish, String key, double setValue) async {
-  final currentDateTime = DateTime.now().toDateTimeInt();
-  await key.setSharedPrefDouble(prefs, setValue);
-  await "localSaveDateTimeKey".setSharedPrefInt(prefs, currentDateTime);
-  if (context.mounted) await setDataFireStore(context, prefs, isLogin, isFirstSaveFinish, key, setValue, currentDateTime);
-}
-
-setAllowanceDataFirestore(BuildContext context, SharedPreferences prefs, bool isLogin, bool isAllowData, List<List<int>> allowanceDate, List<List<String>> allowanceItem, List<List<double>> allowanceAmnt) async {
-  final currentDateTime = DateTime.now().toDateTimeInt();
-  await "dateKey".setSharedPrefString(prefs, jsonEncode(allowanceDate));
-  await "itemKey".setSharedPrefString(prefs, jsonEncode(allowanceItem));
-  await "amntKey".setSharedPrefString(prefs, jsonEncode(allowanceAmnt));
-  await "localSaveDateTimeKey".setSharedPrefInt(prefs, currentDateTime);
-  if (isLogin && isAllowData) {
-    try {
-      User? user = FirebaseAuth.instance.currentUser;
-      "user: $user".debugPrint();
-      DocumentReference docRef = FirebaseFirestore.instance.collection('users').doc(user!.uid);
-      await docRef.set({"dateKey": jsonEncode(allowanceDate)}, SetOptions(merge: true));
-      await docRef.set({"itemKey": jsonEncode(allowanceItem)}, SetOptions(merge: true));
-      await docRef.set({"amntKey": jsonEncode(allowanceAmnt)}, SetOptions(merge: true));
-      await docRef.set({"serverSaveDateTimeKey": currentDateTime}, SetOptions(merge: true));
-      await "serverSaveDateTimeKey".setSharedPrefInt(prefs, currentDateTime);
-    } on FirebaseException catch (e) {
-      '${e.code}: $e'.debugPrint();
-      if (context.mounted) showFailedSnackBar(context, context.storeDataFailed(), null);
-    }
-  }
-}
-
-//Get Data
-Future<int> getServerSaveDateTime() async {
-  try {
-    User? user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      DocumentReference docRef = FirebaseFirestore.instance.collection('users').doc(user.uid);
-      DocumentSnapshot snapshot = await docRef.get();
-      Map<String, dynamic>? data = snapshot.data() as Map<String, dynamic>?;
-      if (data!["serverSaveDateTimeKey"] != null) {
-        "serverSaveDateTime: ${data["serverSaveDateTimeKey"]}".debugPrint();
-        return data["serverSaveDateTimeKey"];
-      } else {
-        "serverSaveDateTime: current time".debugPrint();
-        return DateTime.now().toDateTimeInt();
-      }
-    } else {
-      "serverSaveDateTime: current time".debugPrint();
-      return DateTime.now().toDateTimeInt();
-    }
-  } catch (e) {
-    "Error: $e' -> serverSaveDateTime: current time}".debugPrint();
-    return DateTime.now().toDateTimeInt();
-  }
-}
-
-///AppBar
-Widget appBarTitle(BuildContext context, bool isSelectSummary) =>
-    Row(mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Icon(isSelectSummary ? summaryIcon: listIcon,
-          size: appBarIconSize,
-          color: whiteColor,
-        ),
-        Container(
-          margin: EdgeInsets.symmetric(horizontal: appBarTitleIconSpace),
-          child: appBarTitleText(context, context.appBarTitleText(!isSelectSummary)),
-        )
       ]
-    );
+    ),
+  );
 
-PopupMenuItem appBarPopupMenu(BuildContext context, String value) =>
-    PopupMenuItem(
-      padding: EdgeInsets.all(0.0),
-      value: 1,
-      child: Row(mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          SizedBox(width: 10),
-          Icon(nameIcon,
-            color: purpleColor,
-            size: alertIconSize,
+  /// Drawer header widget with user name display
+  /// Shows personalized greeting with custom styling and shadow effects
+  Widget drawerHeader(String name) => SizedBox(
+    height: context.drawerTitleHeight(name),
+    child: DrawerHeader(
+      decoration: BoxDecoration(color: purpleColor),
+      child: Container(
+        alignment: Alignment.center,
+        child: Text(context.drawerTitle(name),
+          style: TextStyle(
+            color: whiteColor,
+            fontSize: context.drawerTitleFontSize(),
+            fontFamily: context.customAccentFont(),
+            fontWeight: FontWeight.bold,
+            shadows: [commonWidget().customShadow(context, true)]
           ),
-          Text(" $value  ",
-            style: TextStyle(
-              color: purpleColor,
-              fontSize: context.alertFontSize(),
-              fontFamily: "defaultFont",
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ]
-      ),
-    );
-
-///Drawer
-Widget drawerHeader(BuildContext context, String name) =>
-    SizedBox(
-      height: context.drawerTitleHeight(name),
-      child: DrawerHeader(
-        decoration: BoxDecoration(color: purpleColor),
-        child: Container(
-          alignment: Alignment.center,
-          child: Text(context.drawerTitle(name),
-            style: TextStyle(
-              color: whiteColor,
-              fontSize: context.drawerTitleFontSize(),
-              fontFamily: context.customAccentFont(),
-              fontWeight: FontWeight.bold,
-              shadows: [
-                Shadow(
-                  color: transpBlackColor,
-                  blurRadius: shadowBlur,
-                  offset: Offset(shadowOffset, shadowOffset)
-                ),
-              ],
-            ),
-            textAlign: TextAlign.center,
-          ),
+          textAlign: TextAlign.center,
         ),
-      )
-    );
+      ),
+    )
+  );
 
-TextStyle selectUnitTextStyle(BuildContext context) =>
-    TextStyle(
-      color: transpBlackColor,
-      fontSize: drawerUnitFontSize,
-      fontFamily: "Roboto",
-      fontWeight: FontWeight.bold,
-    );
-
-menuNameListTile(BuildContext context, String name) =>
-    Container(
+  /// Menu list tile for user name editing
+  /// Allows users to tap and edit their name through a dialog
+  Widget menuNameListTile(String name, {
+    required Function(String) onChanged,
+    required Function() onConfirm,
+  }) => GestureDetector(
+    onTap: () => nameFieldDialog(
+      onChanged:  onChanged,
+      onConfirm: onConfirm
+    ),
+    child: Container(
       margin: EdgeInsets.all(context.drawerMenuListMargin()),
       child: ListTile(
         leading: Icon(nameIcon,
@@ -258,10 +149,50 @@ menuNameListTile(BuildContext context, String name) =>
         ),
         trailing: Icon(forwardIcon),
       ),
-    );
+    ),
+  );
 
-menuUnitListTile(BuildContext context, String unit) =>
-    Container(
+  /// Dialog for setting user name
+  /// Provides text input field with validation and confirmation
+  void nameFieldDialog({
+    required Function(String) onChanged,
+    required Function() onConfirm,
+  }) => showDialog(context: context,
+    builder: (context) => AlertDialog(
+      title: commonWidget().alertTitleText(context.drawerAlertTitle("name")),
+      content: TextField(
+        controller: TextEditingController(),
+        decoration: drawerAlertDecoration("name"),
+        keyboardType: TextInputType.name,
+        cursorWidth: alertCursorWidth,
+        cursorHeight: alertCursorHeight,
+        cursorColor: "name".drawerAlertColor(),
+        maxLength: context.inputNameMaxLength(),
+        maxLengthEnforcement: MaxLengthEnforcement.enforced,
+        autofocus: true,
+        onChanged: (value) => onChanged(value),
+      ),
+      actions: [
+        commonWidget().alertCancelButton(),
+        const Spacer(),
+        commonWidget().alertJudgeButton(
+          context.ok(),
+          color: purpleColor,
+          onTap: onConfirm,
+        ),
+      ],
+    ),
+  );
+
+  /// Menu list tile for currency unit selection
+  /// Allows users to select their preferred currency unit
+  Widget menuUnitListTile(String unit, {
+    required Function(String?) onChanged,
+  }) => GestureDetector(
+    onTap: () => unitDropDownListDialog(unit,
+      onChanged: onChanged
+    ),
+    child: Container(
       margin: EdgeInsets.all(context.drawerMenuListMargin()),
       child: ListTile(
         leading: Icon(unitIcon, size: context.drawerMenuListIconSize()),
@@ -286,14 +217,52 @@ menuUnitListTile(BuildContext context, String unit) =>
         ),
         trailing: Icon(forwardIcon),
       ),
-    );
+    ),
+  );
 
-menuAssetsListTile(BuildContext context, double initialAssets, String unit, bool isInitial) =>
-    Container(
+  /// Dialog for selecting currency unit
+  /// Provides dropdown selection for different currency units
+  void unitDropDownListDialog(String unit, {
+    required Function(String?) onChanged,
+  }) => showDialog(context: context,
+    builder: (context) => AlertDialog(
+      title: commonWidget().alertTitleText(context.drawerAlertTitle("unit")),
+      content: StatefulBuilder(
+        builder: (BuildContext context, StateSetter setState) => Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [DropdownButton(
+            style: TextStyle(
+              color: transpBlackColor,
+              fontSize: drawerUnitFontSize,
+              fontFamily: "Roboto",
+              fontWeight: FontWeight.bold,
+            ),
+            value: unit,
+            itemHeight: max(kMinInteractiveDimension, drawerUnitItemHeight),
+            items: context.unitList().map((value) => DropdownMenuItem(value: value, child: Text(value))).toList(),
+            onChanged: onChanged,
+          )],
+        ),
+      ),
+    ),
+  );
+
+  /// Menu list tile for initial assets setting
+  /// Displays current initial assets and allows editing
+  Widget menuInitialAssetsTile(double initial, {
+    required String unit,
+    required Function(String) onChanged,
+    required void Function() onConfirm,
+  }) => GestureDetector(
+    onTap: () => setInitialAssetsDialog(
+      onChanged: onChanged,
+      onConfirm: onConfirm
+    ),
+    child: Container(
       margin: EdgeInsets.all(context.drawerMenuListMargin()),
       child: ListTile(
         leading: Icon(amntIcon, size: context.drawerMenuListIconSize()),
-        title: Text(isInitial ? context.initialAssets(): context.targetAssets(),
+        title: Text(context.initialAssets(),
           style: TextStyle(
             color: transpBlackColor,
             fontSize: context.drawerMenuListFontSize(),
@@ -312,7 +281,7 @@ menuAssetsListTile(BuildContext context, double initialAssets, String unit, bool
                 fontWeight: context.customWeight(),
               )
             ),
-            Text(initialAssets.stringAssets(context, unit),
+            Text(initial.stringAssets(context, unit),
               style: TextStyle(
                 color: transpLightBlackColor,
                 fontSize: context.drawerMenuListFontSize(),
@@ -324,10 +293,49 @@ menuAssetsListTile(BuildContext context, double initialAssets, String unit, bool
         ),
         trailing: Icon(forwardIcon),
       ),
-    );
+    ),
+  );
 
-menuLoginTile(BuildContext context, bool isLogin, bool isSaveData) =>
-    Container(
+  /// Dialog for setting initial assets amount
+  /// Provides numeric input with decimal support and validation
+  void setInitialAssetsDialog({
+    required Function(String) onChanged,
+    required void Function() onConfirm,
+  }) => showDialog(context: context,
+    builder: (context) => AlertDialog(
+      title: commonWidget().alertTitleText(context.drawerAlertTitle("initialAssets")),
+      content: TextField(
+        controller: TextEditingController(),
+        style: commonWidget().textFieldTextStyle(),
+        decoration: drawerAlertDecoration("initialAssets"),
+        keyboardType: TextInputType.numberWithOptions(decimal: true),
+        inputFormatters: inputMoneyFormat,
+        cursorWidth: alertCursorWidth,
+        cursorHeight: alertCursorHeight,
+        cursorColor: "initialAssets".drawerAlertColor(),
+        maxLength: inputMoneyMaxLength,
+        maxLengthEnforcement: MaxLengthEnforcement.enforced,
+        autofocus: true,
+        onChanged: onChanged,
+      ),
+      actions: [
+        commonWidget().alertCancelButton(),
+        commonWidget().alertJudgeButton(context.ok(),
+          color: pinkColor,
+          onTap: onConfirm,
+        ),
+      ],
+    ),
+  );
+
+  /// Menu list tile for login/data synchronization
+  /// Shows different options for saving or retrieving data from server
+  Widget menuLoginTile({
+    required bool isSaveData,
+    required void Function() onTap,
+  }) => GestureDetector(
+    onTap: onTap,
+    child: Container(
       margin: EdgeInsets.all(context.drawerMenuListMargin()),
       child: ListTile(
         leading: Icon(isSaveData ? Icons.save: Icons.download,
@@ -354,10 +362,57 @@ menuLoginTile(BuildContext context, bool isLogin, bool isSaveData) =>
         ),
         trailing: Icon(forwardIcon),
       ),
-    );
+    )
+  );
 
-menuDeleteAccountListTile(BuildContext context, String name) =>
-    Container(
+  /// Menu list tile for displaying start date
+  /// Shows the date when allowance tracking began (read-only)
+  Widget menuStartDateListTile(String startDate) => Container(
+    margin: EdgeInsets.all(context.drawerMenuListMargin()),
+    child: ListTile(
+      leading: Icon(dateIcon, size: context.drawerMenuListIconSize()),
+      title: Text(context.startDate(),
+        style: TextStyle(
+          color: transpBlackColor,
+          fontSize: context.drawerMenuListFontSize(),
+          fontFamily: context.customJaFont(),
+          fontWeight: context.customWeight(),
+        )
+      ),
+      subtitle: Container(
+        margin: EdgeInsets.only(top: context.drawerMenuListSubTitleMarginTop()),
+        child:Text(context.orNotSet(startDate),
+          style: TextStyle(
+            color: transpLightBlackColor,
+            fontSize: context.drawerMenuListFontSize(),
+            fontFamily: context.customJaFont(),
+            fontWeight: context.customWeight(),
+          )
+        ),
+      ),
+    ),
+  );
+
+  /// Menu list tile for account deletion
+  /// Provides confirmation dialog before deleting user account
+  Widget menuDeleteAccountTile(String name, {
+    required void Function() onTap
+  }) => GestureDetector(
+    onTap: () => showDialog(context: context,
+      builder: (context) => AlertDialog(
+        title: commonWidget().alertTitleText(context.tryDeleteAccount()),
+        content: Text(context.confirmDeleteAccount()),
+        actions: [
+          commonWidget().alertCancelButton(),
+          const Spacer(),
+          commonWidget().alertJudgeButton(context.ok(),
+            color: pinkColor,
+            onTap: onTap
+          ),
+        ],
+      ),
+    ),
+    child: Container(
       margin: EdgeInsets.all(context.drawerMenuListMargin()),
       child: ListTile(
         leading: Icon(nameIcon, size: context.drawerMenuListIconSize()),
@@ -371,343 +426,522 @@ menuDeleteAccountListTile(BuildContext context, String name) =>
         ),
         trailing: Icon(forwardIcon),
       ),
-    );
+    )
+  );
 
-menuStartDateListTile(BuildContext context, String startDate) =>
-    Container(
-      margin: EdgeInsets.all(context.drawerMenuListMargin()),
-      child: ListTile(
-        leading: Icon(dateIcon, size: context.drawerMenuListIconSize()),
-        title: Text(context.startDate(),
+  /// Input decoration for drawer alert dialogs
+  /// Provides consistent styling for text input fields in dialogs
+  InputDecoration drawerAlertDecoration(String input) => InputDecoration(
+    prefixIcon: Icon(input.drawerAlertIcon(),
+      color: transpLightBlackColor,
+      size: alertIconSize,
+    ),
+    prefixIconConstraints: BoxConstraints(
+      minWidth: context.loginInputIconSpace() * 0.5,
+      minHeight: context.loginInputIconSpace() * 0.5,
+    ),
+    focusedBorder: commonWidget().textFieldUnderLineBorder(input.drawerAlertColor()),
+    counterStyle: TextStyle(fontSize: counterCharSize),
+    hintText: context.drawerAlertHint(input),
+    hintStyle: commonWidget().textFieldHintStyle(context.alertFontSize()),
+  );
+
+  /// Main body content widgets
+  /// Balance display widget showing current allowance balance
+  Widget balanceView(double balance, String unit) => Container(
+    margin: EdgeInsets.symmetric(horizontal: context.balanceMarginHorizontal()),
+    child: Row(mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text(context.balance(), style: commonWidget().customAccentTextStyle(context.balanceFontSize(), false)),
+        Text(unit,
           style: TextStyle(
-            color: transpBlackColor,
-            fontSize: context.drawerMenuListFontSize(),
-            fontFamily: context.customJaFont(),
-            fontWeight: context.customWeight(),
-          )
+            color: whiteColor,
+            fontSize: context.balanceUnitSize(),
+            fontFamily: "Roboto",
+            fontWeight: FontWeight.bold,
+            shadows: [commonWidget().customShadow(context, false)],
+          ),
         ),
-        subtitle: Container(
-          margin: EdgeInsets.only(top: context.drawerMenuListSubTitleMarginTop()),
-          child:Text(context.orNotSet(startDate),
+        Container(
+          margin: EdgeInsets.only(bottom: context.balanceMoneyShiftSize()),
+          child: Text(balance.stringBalance(unit),
             style: TextStyle(
-              color: transpLightBlackColor,
-              fontSize: context.drawerMenuListFontSize(),
-              fontFamily: context.customJaFont(),
-              fontWeight: context.customWeight(),
+              color: whiteColor,
+              fontSize: context.balanceMoneySize(),
+              fontFamily: "enAccent",
+              fontWeight: FontWeight.normal,
+              shadows: [commonWidget().customShadow(context, false)],
             )
           ),
         ),
-      ),
-    );
+      ],
+    ),
+  );
 
-InputDecoration drawerAlertDecoration(BuildContext context, String input) =>
-    InputDecoration(
-      prefixIcon: textFieldPrefixIcon(input.drawerAlertIcon()),
-      focusedBorder: textFieldUnderLineBorder(input.drawerAlertColor()),
-      counterStyle: TextStyle(fontSize: counterCharSize),
-      hintText: context.drawerAlertHint(input),
-      hintStyle: textFieldHintStyle(context.alertFontSize()),
-    );
+  /// Percentage indicator widget showing allowance usage
+  /// Displays linear progress bar with animation
+  Widget percentView(double percent) => Container(
+    margin: EdgeInsets.only(bottom: context.percentMarginBottom()),
+    child: LinearPercentIndicator(
+      width: context.percentBarWidth(),
+      lineHeight: percentBarLineHeight,
+      percent: percent,
+      barRadius: Radius.circular(percentBarLineRadius),
+      animation: true,
+      animationDuration: 1000,
+      backgroundColor: whiteColor,
+      progressColor: purpleColor,
+      alignment: MainAxisAlignment.center,
+    ),
+  );
 
-///MainBody
-//Plus Minus Button
-plusMinusImage(BuildContext context, bool isPlus, Color color) =>
-    Container(
-      width: context.plusMinusSize(),
-      height: context.plusMinusSize(),
-      decoration: actionButtonBoxDecoration(color),
-      child: Icon(isPlus ? forwardIcon : backIcon,
-        size: context.plusMinusIconSize(),
+  /// Spreadsheet data table column definitions
+  /// Defines the structure and styling of the data table headers
+  List<DataColumn> dataColumnTitles() => [
+    dataColumnIcon(dateIcon),
+    dataColumnDivider(),
+    dataColumnIcon(itemIcon),
+    dataColumnDivider(),
+    dataColumnIcon(amntIcon),
+    dataColumnDivider(),
+    dataColumnIcon(deleteIcon),
+  ];
+
+  /// Data column with icon header
+  /// Creates column header with icon and shadow effects
+  DataColumn dataColumnIcon(IconData icon) => DataColumn(
+    label: Expanded(
+      child: Icon(icon,
         color: whiteColor,
-        shadows: [customShadow(true, shadowOffset)],
-      ),
-    );
-
-//Balance View
-balanceView(BuildContext context, double balance, String unit) =>
-    Container(
-      margin: EdgeInsets.symmetric(horizontal: context.balanceMarginHorizontal()),
-      child: Row(mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(context.balance(), style: customAccentTextStyle(context, context.balanceFontSize(), false)),
-          Text(unit,
-            style: TextStyle(
-              color: whiteColor,
-              fontSize: context.balanceUnitSize(),
-              fontFamily: "Roboto",
-              fontWeight: FontWeight.bold,
-              shadows: [customShadow(false, shadowOffset)],
-            ),
-          ),
-          Container(
-            margin: EdgeInsets.only(bottom: context.balanceMoneyShiftSize()),
-            child: Text(balance.stringBalance(unit),
-              style: TextStyle(
-                color: whiteColor,
-                fontSize: context.balanceMoneySize(),
-                fontFamily: "enAccent",
-                fontWeight: FontWeight.normal,
-                shadows: [customShadow(false, shadowOffset)],
-              )
-            ),
-          ),
-        ],
-      ),
-    );
-
-//Percent View
-percentView(BuildContext context, double percent) =>
-    Container(
-      margin: EdgeInsets.only(bottom: context.percentMarginBottom()),
-      child: LinearPercentIndicator(
-        width: context.percentBarWidth(),
-        lineHeight: percentBarLineHeight,
-        percent: percent,
-        barRadius: Radius.circular(percentBarLineRadius),
-        animation: true,
-        animationDuration: 1000,
-        backgroundColor: whiteColor,
-        progressColor: purpleColor,
-        alignment: MainAxisAlignment.center,
-      ),
-    );
-
-///SpreadSheet
-List<DataColumn> dataColumnTitles(BuildContext context) =>
-    [
-      dataColumnIcon(context, dateIcon),
-      dataColumnDivider(),
-      dataColumnIcon(context, itemIcon),
-      dataColumnDivider(),
-      dataColumnIcon(context, amntIcon),
-      dataColumnDivider(),
-      dataColumnIcon(context, deleteIcon),
-    ];
-
-DataColumn dataColumnIcon(BuildContext context, IconData icon) =>
-    DataColumn(
-      label: Expanded(
-        child: Icon(icon, 
-          color: whiteColor, 
-          size: context.spreadSheetIconSize(),
-          shadows: [customShadow(true, shadowOffset)],
-        )
+        size: context.spreadSheetIconSize(),
+        shadows: [commonWidget().customShadow(context, true)],
       )
-    );
+    )
+  );
 
-DataColumn dataColumnDivider() =>
-    DataColumn(
-      label: VerticalDivider(
-        color: whiteColor, 
-        thickness: spreadSheetDividerWidth
-      ),
-    );
+  /// Data column divider for visual separation
+  /// Creates vertical divider between columns
+  DataColumn dataColumnDivider() => DataColumn(
+    label: VerticalDivider(
+      color: whiteColor,
+      thickness: spreadSheetDividerWidth
+    ),
+  );
 
+  /// Data cell divider for row separation
+  /// Creates vertical divider within data cells
+  DataCell dataCellDivider() => DataCell(
+    VerticalDivider(
+      color: grayColor,
+      thickness: spreadSheetDividerWidth
+    )
+  );
 
-TextStyle spreadSheetTextStyle(BuildContext context, double amount) =>
-    TextStyle(
-      color: amount.amountColor(),
-      fontSize: context.spreadSheetFontSize(),
-      fontFamily: "defaultFont",
-      fontWeight: FontWeight.bold,
-    );
-
-TextStyle spreadSheetAmountTextStyle(BuildContext context, double amount, bool isUnit) =>
-    TextStyle(
-      color: amount.amountColor(),
-      fontSize: context.spreadSheetFontSize(),
-      fontFamily: isUnit ? "Roboto": "defaultFont",
-      fontWeight: FontWeight.bold,
-    );
-
-spreadSheetText(BuildContext context, double amount, String text) =>
-    SizedBox(
-      width: double.infinity,
-      child: Text(text,
-        style: spreadSheetTextStyle(context, amount),
-        textAlign: TextAlign.left,
-        maxLines: 1,
-      ),
-    );
-
-spreadSheetAmountText(BuildContext context, double amount, String text, String unit) =>
-    SizedBox(
-      width: double.infinity,
-      child: Row(mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          Text(unit, style: spreadSheetAmountTextStyle(context, amount, true), maxLines: 1),
-          Text(text, style: spreadSheetAmountTextStyle(context, amount, false), maxLines: 1),
-        ]
-      )
-    );
-
-PopupMenuItem deleteButtonImage(BuildContext context, double amount, int id, int listNumber) =>
-    PopupMenuItem(
-      padding: EdgeInsets.all(10.0),
-      value: "1",
-      child: Row(mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(deleteIcon,
+  /// Date selection button for spreadsheet
+  /// Allows users to select and modify dates for allowance entries
+  DataCell spreadSheetDateButton(int date, {
+    required double amount,
+    required String startDate,
+    required int index,
+    required int id,
+    required Function(DateTime?, int) onSelected,
+  }) => DataCell(
+    GestureDetector(
+      onTap: () async {
+        if (amount == 0.0) return;
+        DateTime? picked = await showDatePicker(
+          context: context,
+          builder: (context, child) => Theme(
+            data: selectDateTheme(amount < 0),
+            child: child!
+          ),
+          initialDate: startDate.toThisDate(index),
+          firstDate: startDate.toThisMonthFirstDay(index),
+          lastDate: startDate.toThisMonthLastDay(index),
+          initialEntryMode: DatePickerEntryMode.calendarOnly,
+          locale: context.selectDayLocale(),
+          helpText: context.modifyDateTitle(),
+        );
+        'Selected date: $picked'.debugPrint();
+        onSelected(picked, id);
+      },
+      child: SizedBox(
+        width: double.infinity,
+        child: Text(startDate.stringThisMonthDay(index, date),
+          style: TextStyle(
             color: amount.amountColor(),
-            size: alertIconSize,
+            fontSize: context.spreadSheetFontSize(),
+            fontFamily: "defaultFont",
+            fontWeight: FontWeight.bold,
           ),
-          Text((id == listNumber - 1) ? "": "  ${context.delete()}",
-            style: TextStyle(
-              color: amount.amountColor(),
-              fontSize: context.alertFontSize(),
-              fontFamily: "default",
-              fontWeight: FontWeight.bold
-            ),
-          ),
-        ]
+          textAlign: TextAlign.left,
+          maxLines: 1,
+        ),
       ),
-    );
+    ),
+  );
 
-InputDecoration spreadSheetAlertDecoration(BuildContext context, String input, bool isSpend) =>
-    InputDecoration(
-      prefixIcon: textFieldPrefixIcon(input.spreadSheetAlertIcon()),
-      focusedBorder: textFieldUnderLineBorder(isSpend.speedDialColor()),
-      counterStyle: TextStyle(fontSize: counterCharSize),
-      hintText: context.spreadSheetAlertHint(input, isSpend),
-      hintStyle: textFieldHintStyle(context.alertFontSize()),
-    );
+  /// Theme configuration for date picker
+  /// Applies custom styling based on whether it's a spend or income entry
+  ThemeData selectDateTheme(bool isSpend) => Theme.of(context).copyWith(
+    colorScheme: ColorScheme.light(
+      primary: isSpend.setPlusMinus().amountColor(),
+      onPrimary: whiteColor,
+    ),
+    textTheme: TextTheme(
+      titleSmall: TextStyle(fontSize: 0.0),
+      labelSmall: TextStyle(fontSize: alertDateFontSize),
+      bodySmall: TextStyle(fontSize: alertDateFontSize),
+    ),
+    textButtonTheme: TextButtonThemeData(
+      style: TextButton.styleFrom(
+          foregroundColor: transpBlackColor,
+          textStyle: TextStyle(
+            fontSize: context.alertFontSize(),
+            fontFamily: "defaultFont",
+            fontWeight: FontWeight.bold,
+          )
+      ),
+    ),
+  );
 
-summaryButtonImage(BuildContext context) =>
-    Container(
+  /// Item input button for spreadsheet
+  /// Allows editing of item descriptions through dialog
+  DataCell spreadSheetItemButton(String item, {
+    required double amount,
+    required Function(String) onChanged,
+    required void Function() onConfirm,
+  }) => DataCell(
+    GestureDetector(
+      onTap: () {
+        if (amount != 0.0) {
+          inputItemDialog(
+            amount: amount,
+            onChanged: onChanged,
+            onConfirm: onConfirm,
+          );
+        }
+      },
+      child: SizedBox(
+        width: double.infinity,
+        child: Text(amount.stringItem(context, item),
+          style: TextStyle(
+            color: amount.amountColor(),
+            fontSize: context.spreadSheetFontSize(),
+            fontFamily: "defaultFont",
+            fontWeight: FontWeight.bold,
+          ),
+          textAlign: TextAlign.left,
+          maxLines: 1,
+        ),
+      ),
+    ),
+  );
+
+  /// Dialog for editing item descriptions
+  /// Provides text input for modifying allowance item names
+  void inputItemDialog({
+    required double amount,
+    required Function(String) onChanged,
+    required void Function() onConfirm,
+  }) => showDialog(context: context,
+    builder: (context) => AlertDialog(
+      title: commonWidget().alertTitleText(context.spreadSheetAlertTitleText("item")),
+      content: spreadSheetTextField(
+        label: "item",
+        amount: amount,
+        onChanged: onChanged
+      ),
+      actions: [
+        commonWidget().alertCancelButton(),
+        const Spacer(),
+        commonWidget().alertJudgeButton(context.ok(),
+          color: (amount < 0).speedDialColor(),
+          onTap: onConfirm,
+        ),
+      ],
+    ),
+  );
+
+  /// Amount input button for spreadsheet
+  /// Allows editing of allowance amounts through dialog
+  DataCell spreadSheetAmountButton(double amount, {
+    required String unit,
+    required Function(String) onChanged,
+    required void Function() onConfirm,
+  }) => DataCell(
+    GestureDetector(
+      onTap: () {
+        if (amount != 0.0) {
+          amountInputDialog(amount,
+            onChanged: onChanged,
+            onConfirm: onConfirm,
+          );
+        }
+      },
+      child: SizedBox(
+        width: double.infinity,
+        child: Row(mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            Text(unit,
+              style:  TextStyle(
+                color: amount.amountColor(),
+                fontSize: context.spreadSheetFontSize(),
+                fontFamily: "Roboto",
+                fontWeight: FontWeight.bold,
+              ),
+              maxLines: 1
+            ),
+            Text(amount.stringAmount(unit),
+              style: TextStyle(
+                color: amount.amountColor(),
+                fontSize: context.spreadSheetFontSize(),
+                fontFamily: "defaultFont",
+                fontWeight: FontWeight.bold,
+              ),
+              maxLines: 1
+            ),
+          ]
+        ),
+      ),
+    ),
+  );
+
+  /// Dialog for editing allowance amounts
+  /// Provides numeric input with decimal support for amount modification
+  void amountInputDialog(double amount, {
+    required Function(String) onChanged,
+    required void Function() onConfirm,
+  }) => showDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: commonWidget().alertTitleText(context.spreadSheetAlertTitleText("amnt")),
+      content: spreadSheetTextField(
+        label: "amnt",
+        amount: amount,
+        onChanged: onChanged,
+      ),
+      actions: [
+        commonWidget().alertCancelButton(),
+        const Spacer(),
+        commonWidget().alertJudgeButton(
+          context.ok(),
+          color: (amount < 0).speedDialColor(),
+          onTap: onConfirm,
+        ),
+      ],
+    ),
+  );
+
+  /// Delete button for spreadsheet entries
+  /// Provides popup menu for deleting allowance entries
+  DataCell spreadSheetDeleteButton({
+    required double amount,
+    required int id,
+    required int listNumber,
+    required void Function(String) onSelected,
+  }) => DataCell((amount == 0.0) ? Text(""): Container(
+    width: context.deleteButtonWidth(),
+    alignment: Alignment.centerLeft,
+    child: PopupMenuButton(
+      onSelected: onSelected,
+      icon: Icon(moreIcon, color: amount.amountColor()),
+      iconSize: context.spreadSheetFontSize(),
+      initialValue: "",
+      itemBuilder: (BuildContext context) => [PopupMenuItem(
+        padding: EdgeInsets.all(10.0),
+        value: "1",
+        child: Row(mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(deleteIcon,
+              color: amount.amountColor(),
+              size: alertIconSize,
+            ),
+            Text((id == listNumber - 1) ? "": " ${context.delete()}",
+              style: TextStyle(
+                  color: amount.amountColor(),
+                  fontSize: context.alertFontSize(),
+                  fontFamily: "default",
+                  fontWeight: FontWeight.bold
+              ),
+            ),
+          ]
+        ),
+      )]),
+    ),
+  );
+
+  /// Text field for spreadsheet dialogs
+  /// Provides consistent text input for item and amount editing
+  TextField spreadSheetTextField({
+    required String label,
+    required double amount,
+    required Function(String) onChanged,
+  }) => TextField(
+    style: commonWidget().textFieldTextStyle(),
+    controller: TextEditingController(),
+    keyboardType: (label == "amnt") ? TextInputType.numberWithOptions(decimal: true): null,
+    inputFormatters: (label == "amnt") ? inputMoneyFormat: null,
+    decoration: spreadSheetAlertDecoration(label, amount < 0),
+    cursorWidth: alertCursorWidth,
+    cursorHeight: alertCursorHeight,
+    cursorColor: amount.amountColor(),
+    maxLength: (label == "amnt") ? inputMoneyMaxLength: context.inputItemMaxLength(),
+    maxLengthEnforcement: MaxLengthEnforcement.enforced,
+    autofocus: true,
+    onChanged: onChanged,
+  );
+
+  /// Input decoration for spreadsheet alert dialogs
+  /// Provides styling for text fields in spreadsheet editing dialogs
+  InputDecoration spreadSheetAlertDecoration(String input, bool isSpend) => InputDecoration(
+    prefixIcon: Icon(input.spreadSheetAlertIcon(),
+      color: transpLightBlackColor,
+      size: alertIconSize,
+    ),
+    prefixIconConstraints: BoxConstraints(
+      minWidth: context.loginInputIconSpace(),
+      minHeight: context.loginInputIconSpace(),
+    ),
+    focusedBorder: commonWidget().textFieldUnderLineBorder(isSpend.speedDialColor()),
+    counterStyle: TextStyle(fontSize: counterCharSize),
+    hintText: context.spreadSheetAlertHint(input, isSpend),
+    hintStyle: commonWidget().textFieldHintStyle(context.alertFontSize()),
+  );
+
+  /// Floating action button widgets
+  /// Summary button for switching to summary view
+  Widget summaryButton({
+    required void Function() onTap,
+  }) => GestureDetector(
+    onTap: onTap,
+    child: Container(
       width: context.floatingActionButtonSize(),
       height: context.floatingActionButtonSize(),
       margin: EdgeInsets.only(left: floatingActionButtonLeftMargin),
-      decoration: actionButtonBoxDecoration(purpleColor),
+      decoration: commonWidget().actionButtonBoxDecoration(purpleColor),
       child: Icon(summaryIcon,
         size: context.floatingActionIconSize(),
         color: whiteColor,
-        shadows: [customShadow(true, shadowOffset)],
+        shadows: [commonWidget().customShadow(context, true)],
       ),
-    );
+    ),
+  );
 
-///Chart
-LineTouchData chartTouchData() =>
-    LineTouchData(
-      touchTooltipData: LineTouchTooltipData(
-        getTooltipColor: (_) => whiteColor,
-      ),
-    );
-
-LineChartBarData chartLineData(BuildContext context, List<FlSpot> flSpotList, Color color) =>
-    LineChartBarData(
-      spots: flSpotList,
-      color: color,
-      barWidth: context.chartBarWidth(),
-      dotData:  FlDotData(
-        show: true,
-        getDotPainter: (spot, percent, barData, index) => FlDotCirclePainter(
-          radius: context.chartDotWidth(),
-          color: color,
-          strokeColor: whiteColor,
+  /// Speed dial widget for quick allowance entry
+  /// Provides floating action button with expandable options for spend/income
+  Widget speedDialForInputs({
+    required String startDate,
+    required int index,
+    required Function(DateTime?, bool) onSelected,
+  }) => Container(
+    decoration: commonWidget().actionButtonBoxDecoration(purpleColor),
+    child: SpeedDial(
+      icon: openIcon,
+      activeIcon: closeIcon,
+      iconTheme: IconThemeData(size: context.speedDialIconSize()),
+      direction: SpeedDialDirection.up,
+      buttonSize: context.floatingActionButtonSize().circleSize(),
+      childrenButtonSize: context.speedDialChildButtonSize().circleSize(),
+      spaceBetweenChildren: context.speedDialSpaceHeight(),
+      foregroundColor: whiteColor,
+      backgroundColor: purpleColor,
+      curve: Curves.bounceIn,
+      spacing: context.speedDialSpacing(),
+      children: [true, false].map((isSpend) => spreadSheetSpeedDialChild(
+        isSpend: isSpend,
+        onTap: () => allowanceSelectDateDialog(
+          startDate: startDate,
+          index: index,
+          isSpend: isSpend,
+          onSelected: (picked, isSpend) => onSelected(picked, isSpend),
         ),
+      )).toList(),
+    ),
+  );
+
+  /// Speed dial child button for spend/income options
+  /// Creates individual buttons for spend and income entry
+  SpeedDialChild spreadSheetSpeedDialChild({
+    required bool isSpend,
+    required void Function() onTap,
+  }) => SpeedDialChild(
+    foregroundColor: whiteColor,
+    backgroundColor: isSpend.speedDialColor(),
+    label: context.speedDialTitle(isSpend),
+    labelBackgroundColor: isSpend.speedDialColor(),
+    labelStyle: TextStyle(
+      color: whiteColor,
+      fontSize: context.speedDialChildFontSize(),
+      fontFamily: "defaultFont",
+      fontWeight: FontWeight.bold,
+    ),
+    child: Icon(isSpend.speedDialIcon(),
+      size: context.speedDialChildIconSize(),
+      shadows: [commonWidget().customShadow(context, false)],
+    ),
+    onTap: onTap,
+  );
+
+  /// Date picker dialog for allowance entry
+  /// Allows users to select date for new allowance or spend entry
+  Future<void> allowanceSelectDateDialog({
+    required String startDate,
+    required int index,
+    required bool isSpend,
+    required Function(DateTime?, bool) onSelected,
+  }) async {
+    DateTime? picked = await showDatePicker(
+      context: context,
+      builder: (context, child) => Theme(
+        data: selectDateTheme(isSpend),
+        child: child!
       ),
+      initialDate: startDate.toThisDate(index),
+      firstDate: startDate.toThisMonthFirstDay(index),
+      lastDate: startDate.toThisMonthLastDay(index),
+      initialEntryMode: DatePickerEntryMode.calendarOnly,
+      locale: context.selectDayLocale(),
+      helpText: context.settingDateHint(),
     );
+    'Selected date: $picked'.debugPrint();
+    onSelected(picked, isSpend);
+  }
 
-FlGridData chartGridData(BuildContext context) =>
-    FlGridData(
-      show: true,
-      drawHorizontalLine: true,
-      drawVerticalLine: true,
-      getDrawingHorizontalLine: (_) => FlLine(
-        color: whiteColor,
-        strokeWidth: context.chartHorizontalBorderWidth(),
-        dashArray: chartBorderDashArray,
-      ),
-      getDrawingVerticalLine: (_) => FlLine(
-        color: whiteColor,
-        strokeWidth: context.chartVerticalBorderWidth(),
-        dashArray: chartBorderDashArray,
-      ),
-    );
-
-FlBorderData chartBorderData(BuildContext context) =>
-    FlBorderData(
-      show: true,
-      border: Border.all(
-        color: whiteColor,
-        width: context.chartBorderWidth()
-      )
-    );
-
-SideTitles bottomAxisNumber(BuildContext context) =>
-    SideTitles(
-      showTitles: true,
-      interval: 1,
-      reservedSize: context.chartBottomReservedSize(),
-      getTitlesWidget: (value, meta) => SideTitleWidget(
-        axisSide: meta.axisSide,
-        child: Text(meta.formattedValue,
-          style: defaultAccentTextStyle(context, context.chartAxisFontSize()),
-        ),
-      )
-    );
-
-Widget bottomAxisTitleText(BuildContext context) =>
-    Container(
-      margin: EdgeInsets.only(left: context.chartBottomMarginLeft()),
-      child: Text(context.month(),
-        style: defaultAccentTextStyle(context, context.chartBottomFontSize())
-      ),
-    );
-
-SideTitles leftAxisNumber(BuildContext context, List<double> list) =>
-    SideTitles(
-      showTitles: true,
-      interval: list.reduce(max).maxChartY(null) / 5,
-      reservedSize: context.chartLeftReservedSize(),
-      getTitlesWidget: (value, meta) => SideTitleWidget(
-        axisSide: meta.axisSide,
-        child: Text(meta.formattedValue,
-          style: defaultAccentTextStyle(context, context.chartAxisFontSize()),
-        ),
-      )
-    );
-
-FlTitlesData flTitlesData(BuildContext context, List<double> list, String unit, Color color) => FlTitlesData(
-  show: true,
-  topTitles: AxisTitles(
-    axisNameSize: context.chartTopAxisNameSize(),
-    axisNameWidget: chartTitleText(context, unit, color),
-  ),
-  bottomTitles: AxisTitles(
-    sideTitles: bottomAxisNumber(context),
-    axisNameSize: context.chartBottomAxisNameSize(),
-    axisNameWidget: bottomAxisTitleText(context),
-  ),
-  leftTitles: AxisTitles(sideTitles: leftAxisNumber(context, list)),
-  rightTitles: AxisTitles(axisNameWidget: SizedBox(width: 0)),
-);
-
-
-Widget chartTitleText(BuildContext context, String unit, Color color) =>
-    Container(
-      margin: EdgeInsets.only(left: context.chartTopMarginLeft()),
-      child: Row(mainAxisAlignment: MainAxisAlignment.center,
+  /// Input dialog for new allowance entries
+  /// Provides form for entering item and amount for new allowance/spend
+  void allowanceInputDialog({
+    required bool isSpend,
+    required Function(String, bool) onChangedItem,
+    required Function(String, bool) onChangedAmount,
+    required Function(bool) onConfirm,
+  }) => showDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: commonWidget().alertTitleText(context.speedDialTitle(isSpend)),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Text("[$unit] ",
-            style: TextStyle(
-              color: whiteColor,
-              fontSize: context.chartTitleFontSize(),
-              fontFamily: "Roboto",
-              fontWeight: FontWeight.bold,
-              shadows: [customShadow(false, shadowOffset)],
-            ),
+          spreadSheetTextField(
+            label: "item",
+            amount: isSpend ? -1.0: 1.0,
+            onChanged: (value) => onChangedItem(value, isSpend), //onChangeItem(value, isSpend),
           ),
-          Text("${context.chartTitle(color)} ",
-            style: TextStyle(
-              color: whiteColor,
-              fontSize:context.chartTitleFontSize(),
-              fontFamily: context.customAccentFont(),
-              fontWeight: FontWeight.bold,
-              shadows: [customShadow(false, shadowOffset)],
-            )
+          spreadSheetTextField(
+            label: "amnt",
+            amount: isSpend ? -1.0: 1.0,
+            onChanged: (value) => onChangedAmount(value, isSpend),  //onChangeAmount(value, isSpend),
           ),
-        ]
+        ],
       ),
-    );
+      actions: [
+        commonWidget().alertCancelButton(),
+        commonWidget().alertJudgeButton(context.ok(),
+          color: isSpend.speedDialColor(),
+          onTap: () => onConfirm(isSpend) //setNewAllowance(isSpend)
+        ),
+      ],
+    ),
+  );
+}
 

@@ -3,7 +3,6 @@
 
   "appTitle": "かわいいおこづかいちょう",
   "thisApp": "かんたんにおこづかいがかんりできるアプリです",
-
   "list": "リスト",
   "summary": "まとめ",
   "month": "[月]",
@@ -14,14 +13,12 @@
   "amnt": "金がく",
   "input": "入力する",
   "delete": "さくじょ",
-
   "enter": "入力してね",
   "select": "タップしてね",
   "ok": "はい",
   "no": "いいえ",
   "cancel": "キャンセル",
   "notSet": "せっていしてね",
-
   "balance": " のこりのお金 ",
   "assets": "ためたお金",
   "moneySpent": "つかったお金",
@@ -34,7 +31,6 @@
   "modifyDateTitle": "日にちのへんこう",
   "modifyItemTitle": "ないようのへんこう",
   "modifyAmntTitle": "金がくのへんこう",
-
   "s": "の",
   "tracker": "おこづかいちょう",
   "name": "名まえ",
@@ -51,10 +47,8 @@
   "startDate": "はじめた日",
   "privacyPolicy": "プライバシー・ポリシー",
   "version": "バージョン",
-
   "success": "成功",
   "error": "エラー",
-
   "login": "ログイン",
   "logout": "ログアウト",
   "signup": "新規登録",
@@ -95,7 +89,6 @@
   "operationNotAllowed": "時間をおいてからお試しください",
   "loginErrorMessage": "ログインに失敗しました",
   "signupErrorMessage": "ユーザー登録に失敗しました",
-
   "storeDataAfterLogin": "データが保管できます",
   "getStoredData": "保管データを取得",
   "storeYourData": "データを保管",
