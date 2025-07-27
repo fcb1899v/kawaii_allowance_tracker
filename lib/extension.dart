@@ -1,4 +1,3 @@
-import 'dart:math';
 import 'package:intl/intl.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/cupertino.dart';
@@ -603,8 +602,6 @@ extension DoubleExt on double {
       (this < 2000000) ? 2000000:
       (this < 5000000) ? 5000000:
       10000000;
-  double maxChartY(double? targetAssets) =>
-      ((targetAssets == null) ? this: max(this, targetAssets)).toChartY();
 }
 
 /// Boolean extensions for UI styling

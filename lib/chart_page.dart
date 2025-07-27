@@ -173,8 +173,8 @@ class ChartWidget {
         lineTouchData: chartTouchData(),
         lineBarsData: [chartLineData(list.chartData(index, maxIndex, startDate), color)],
         minY: 0,
-        maxY: list.reduce(max).maxChartY(null),
-        gridData: chartGridData(),
+        maxY: list.reduce(max).toChartY(),
+        gridData: chartGridData(list),
         backgroundColor: transpWhiteColor,
         borderData: chartBorderData(),
         titlesData: flTitlesData(list, unit, color)
@@ -208,17 +208,17 @@ class ChartWidget {
 
   /// Chart Grid Data - Configures the grid lines on the chart
   /// Sets up horizontal and vertical grid lines with custom styling
-  FlGridData chartGridData() => FlGridData(
+  FlGridData chartGridData(List<double> list) => FlGridData(
     show: true,
     drawHorizontalLine: true,
     drawVerticalLine: true,
-    getDrawingHorizontalLine: (_) => FlLine(
+    getDrawingHorizontalLine: (value) => FlLine(
       color: whiteColor,
       strokeWidth: context.chartHorizontalBorderWidth(),
       dashArray: chartBorderDashArray,
     ),
-    getDrawingVerticalLine: (_) => FlLine(
-      color: whiteColor,
+    getDrawingVerticalLine: (value) => FlLine(
+      color:whiteColor,
       strokeWidth: context.chartVerticalBorderWidth(),
       dashArray: chartBorderDashArray,
     ),
@@ -240,12 +240,9 @@ class ChartWidget {
     showTitles: true,
     interval: 1,
     reservedSize: context.chartBottomReservedSize(),
-    getTitlesWidget: (value, meta) => SideTitleWidget(
-      axisSide: meta.axisSide,
-      child: Text(meta.formattedValue,
-        style: defaultAccentTextStyle(context.chartAxisFontSize()),
-      ),
-    )
+    getTitlesWidget: (value, meta) => Text(meta.formattedValue,
+      style: defaultAccentTextStyle(context.chartAxisFontSize()),
+    ),
   );
 
   /// Bottom Axis Title Text - Creates the "Month" label for bottom axis
@@ -261,13 +258,9 @@ class ChartWidget {
   /// Sets up interval and styling for amount value display
   SideTitles leftAxisNumber(List<double> list) => SideTitles(
     showTitles: true,
-    interval: list.reduce(max).maxChartY(null) / 5,
     reservedSize: context.chartLeftReservedSize(),
-    getTitlesWidget: (value, meta) => SideTitleWidget(
-      axisSide: meta.axisSide,
-      child: Text(meta.formattedValue,
-        style: defaultAccentTextStyle(context.chartAxisFontSize()),
-      ),
+    getTitlesWidget: (value, meta) => Text(meta.formattedValue,
+      style: defaultAccentTextStyle(context.chartAxisFontSize()),
     )
   );
 

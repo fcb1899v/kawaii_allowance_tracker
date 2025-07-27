@@ -28,7 +28,7 @@ dependencies:
   # Bar indicator
   percent_indicator: ^4.2.5
   # Graph
-  fl_chart: ^0.68.0
+  fl_chart: ^1.0.0
   #env
   flutter_dotenv: ^5.2.1
   # Admob
