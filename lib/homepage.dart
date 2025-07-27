@@ -32,9 +32,9 @@ class HomePage extends HookConsumerWidget {
     /// Controls login status, loading states, and data permissions
     final login = ref.read(loginProvider.notifier);
     final isLogin = ref.watch(loginProvider).isLogin;
-    final isSummary = useState(false); // Controls whether to show summary view or detailed list
-    final isLoading = useState(false); // Controls loading indicator visibility
-    final isAllowData = useState([false, false]); // [localSave, serverGet] data permissions
+    final isSummary = useState(false);
+    final isLoading = useState(false);
+    final isAllowData = useState([false, false]);
 
     /// Allowance data storage variables
     /// Stores all allowance-related data including dates, items, amounts, and calculations
@@ -80,12 +80,13 @@ class HomePage extends HookConsumerWidget {
 
     /// Manager instances for data operations
     /// Handles Firestore operations and data management
+    final authManager = AuthManager(context);
     final firestoreManager = FirestoreManager(context, isLogin: isLogin);
 
     /// Reset login state and clear local data permissions
     /// Called when user logs out or account is deleted
     resetLoginState(SharedPreferences prefs) {
-      login.setCurrentLogin(AuthManager.isLoggedIn);
+      login.setCurrentLogin(authManager.isLoggedIn);
       "Login: $isLogin".debugPrint();
       isAllowData.value = [false, false];
       "isAllowSaveLocalDataKey".setSharedPrefBool(prefs, isAllowData.value[0]);
@@ -98,7 +99,7 @@ class HomePage extends HookConsumerWidget {
       if (!isLoading.value) {
         isLoading.value = true;
         try {
-          await AuthManager.signOut();
+          await authManager.signOut();
           resetLoginState(prefs);
           if (context.mounted) commonWidget.showSuccessSnackBar(context.logoutSuccess());
         } on FirebaseAuthException catch (_) {
@@ -115,9 +116,7 @@ class HomePage extends HookConsumerWidget {
       if (!isLoading.value) {
         isLoading.value = true;
         try {
-          final User? user = AuthManager.currentUser;
-          "user: $user".debugPrint();
-          await user?.delete();
+          authManager.deleteAccount();
           resetLoginState(prefs);
           if (context.mounted) commonWidget.showSuccessSnackBar(context.deleteAccountSuccess());
         } catch (e) {
@@ -146,25 +145,24 @@ class HomePage extends HookConsumerWidget {
     setAllDataFirestore(SharedPreferences prefs) async {
       if (isLogin && isAllowData.value[0]) {
         try {
-          final User? user = AuthManager.currentUser;
+          final User? user = authManager.currentUser;
           DocumentReference docRef = FirebaseFirestore.instance.collection('users').doc(user!.uid);
           await docRef.set({"startDateKey": startDate.value}, SetOptions(merge: true));
           await docRef.set({"nameKey": name.value}, SetOptions(merge: true));
           await docRef.set({"unitKey": unit.value}, SetOptions(merge: true));
           await docRef.set({"initialAssetsKey": initialAssets.value}, SetOptions(merge: true));
-          // await docRef.set({"targetAssetsKey": targetAssets.value}, SetOptions(merge: true));
           await docRef.set({"dateKey": jsonEncode(allowanceDate.value)}, SetOptions(merge: true));
           await docRef.set({"itemKey": jsonEncode(allowanceItem.value)}, SetOptions(merge: true));
           await docRef.set({"amntKey": jsonEncode(allowanceAmnt.value)}, SetOptions(merge: true));
           await docRef.set({"serverSaveDateTimeKey": currentDateTime}, SetOptions(merge: true));
           isAllowData.value = [true, true];
-          await "serverSaveDateTimeKey".setSharedPrefInt(prefs, currentDateTime);
-          await "isAllowGetServerDataKey".setSharedPrefBool(prefs, isAllowData.value[1]);
+          "serverSaveDateTimeKey".setSharedPrefInt(prefs, currentDateTime);
+          "isAllowGetServerDataKey".setSharedPrefBool(prefs, isAllowData.value[1]);
           if (context.mounted) commonWidget.showSuccessSnackBar(context.storeDataSuccess());
-          isLoading.value = false;
         } on FirebaseException catch (e) {
           '${e.code}: $e'.debugPrint();
           if (context.mounted) commonWidget.showFailedSnackBar(context.storeDataFailed(), null);
+        } finally {
           isLoading.value = false;
         }
       }
@@ -175,7 +173,7 @@ class HomePage extends HookConsumerWidget {
     getAllDataFirestore(SharedPreferences prefs) async {
       if (isLogin && isAllowData.value[1]) {
         try {
-          final User? user = AuthManager.currentUser;
+          final User? user = authManager.currentUser;
           DocumentReference docRef = FirebaseFirestore.instance.collection('users').doc(user!.uid);
           DocumentSnapshot snapshot = await docRef.get();
           Map<String, dynamic>? data = snapshot.data() as Map<String, dynamic>?;
@@ -195,19 +193,18 @@ class HomePage extends HookConsumerWidget {
             balance.value = allowanceAmnt.value.calcBalance(maxIndex.value);
             spends.value = allowanceAmnt.value.calcSpends(maxIndex.value);
             assets.value = balance.value.calcAssets(maxIndex.value, initialAssets.value);
-            if (context.mounted) commonWidget.showSuccessSnackBar(context.getDataSuccess());
             localSaveDateTime.value = currentDateTime;
             isAllowData.value = [true, true];
-            await "localSaveDateTimeKey".setSharedPrefInt(prefs, currentDateTime);
-            await "isAllowSaveLocalDataKey".setSharedPrefBool(prefs, isAllowData.value[0]);
-            isLoading.value = false;
+            "localSaveDateTimeKey".setSharedPrefInt(prefs, currentDateTime);
+            "isAllowSaveLocalDataKey".setSharedPrefBool(prefs, isAllowData.value[0]);
+            if (context.mounted) commonWidget.showSuccessSnackBar(context.getDataSuccess());
           } else {
             if (context.mounted) commonWidget.showFailedSnackBar(context.noDataAvailable(), null);
-            isLoading.value = false;
           }
         } on FirebaseException catch (e) {
           '${e.code}: $e'.debugPrint();
           if (context.mounted) commonWidget.showFailedSnackBar(context.getDataFailed(), null);
+        } finally {
           isLoading.value = false;
         }
       }
@@ -216,10 +213,10 @@ class HomePage extends HookConsumerWidget {
     /// Get all allowance data from local storage
     /// Retrieves data from SharedPreferences and updates all state variables
     getAllowanceData(prefs) async {
-      name.value = await "nameKey".getSharedPrefString(prefs, "");
-      unit.value = (context.mounted) ? await "unitKey".getSharedPrefString(prefs, context.defaultUnit()): "\$";
-      initialAssets.value = await "initialAssetsKey".getSharedPrefDouble(prefs, 0.0);
-      startDate.value = await "startDateKey".getSharedPrefString(prefs, currentDate);
+      name.value = "nameKey".getSharedPrefString(prefs, "");
+      unit.value = (context.mounted) ? "unitKey".getSharedPrefString(prefs, context.defaultUnit()): "\$";
+      initialAssets.value = "initialAssetsKey".getSharedPrefDouble(prefs, 0.0);
+      startDate.value = "startDateKey".getSharedPrefString(prefs, currentDate);
       allowanceDate.value = "dateKey".getSharedPrefString(prefs, "[[0]]").toString().toListListDate();
       allowanceItem.value = "itemKey".getSharedPrefString(prefs, "[[""]]").toString().toListListItem();
       allowanceAmnt.value = "amntKey".getSharedPrefString(prefs, "[[0.0]]").toString().toListListAmnt();
@@ -240,16 +237,16 @@ class HomePage extends HookConsumerWidget {
       isLoading.value = true;
       try {
         if (!("isStartKey".getSharedPrefBool(prefs, false))) {
-          await AuthManager.signOut();
+          await authManager.signOut();
           "startDateKey".setSharedPrefString(prefs, startDate.value);
           "isStartKey".setSharedPrefBool(prefs, true);
         }
-        login.setCurrentLogin(AuthManager.isLoggedIn);
-        "isLogin: $isLogin, user: ${isLogin ? AuthManager.currentUserId: "none"}".debugPrint();
+        login.setCurrentLogin(authManager.isLoggedIn);
+        "isLogin: $isLogin, user: ${isLogin ? authManager.currentUserId: "none"}".debugPrint();
         localSaveDateTime.value = "localSaveDateTimeKey".getSharedPrefInt(prefs, currentDateTime);
         serverSaveDateTime.value = "serverSaveDateTimeKey".getSharedPrefInt(prefs, currentDateTime);
-        isAllowData.value[0] = await "isAllowSaveLocalDataKey".getSharedPrefBool(prefs, false);
-        isAllowData.value[1] = await "isAllowGetServerDataKey".getSharedPrefBool(prefs, false);
+        isAllowData.value[0] = "isAllowSaveLocalDataKey".getSharedPrefBool(prefs, false);
+        isAllowData.value[1] = "isAllowGetServerDataKey".getSharedPrefBool(prefs, false);
         "toFirestore: ${!isAllowData.value[0] && isAllowData.value[1]}".debugPrint();
         (!isAllowData.value[0] && isAllowData.value[1]) ? getAllDataFirestore(prefs): getAllowanceData(prefs);
       } catch (e) {
@@ -279,7 +276,9 @@ class HomePage extends HookConsumerWidget {
       allowanceItem.value[i].removeAt(id);
       allowanceAmnt.value[i].removeAt(id);
       sortAllowanceList();
-      SharedPreferences.getInstance().then((prefs) async => await setAllowanceData(prefs));
+      SharedPreferences.getInstance().then((prefs) async =>
+        await setAllowanceData(prefs)
+      );
     }
 
     /// Toggle between summary view and detailed list view
@@ -300,7 +299,9 @@ class HomePage extends HookConsumerWidget {
         allowanceDate.value.add([0]);
         allowanceItem.value.add([""]);
         allowanceAmnt.value.add([0.0]);
-        await SharedPreferences.getInstance().then((prefs) async => await setAllowanceData(prefs));
+        await SharedPreferences.getInstance().then((prefs) async =>
+          await setAllowanceData(prefs)
+        );
       }
       if (isPlus) index.value++;
       "index: ${index.value}".debugPrint();
@@ -320,7 +321,7 @@ class HomePage extends HookConsumerWidget {
         name.value = inputName.value;
         inputName.value = "";
         SharedPreferences.getInstance().then((prefs) async =>
-          firestoreManager.setStringFirestore(isAllowData.value[0], "nameKey", name.value),
+          await firestoreManager.setStringFirestore(isAllowData.value[0], "nameKey", name.value),
         );
       }
       if (context.mounted) context.popPage();
@@ -333,7 +334,7 @@ class HomePage extends HookConsumerWidget {
       if (value.isNotEmpty) {
         unit.value = value;
         SharedPreferences.getInstance().then((prefs) async =>
-          firestoreManager.setStringFirestore(isAllowData.value[0], "unitKey", unit.value),
+          await firestoreManager.setStringFirestore(isAllowData.value[0], "unitKey", unit.value),
         );
       }
       if (context.mounted) context.popPage();
@@ -369,7 +370,9 @@ class HomePage extends HookConsumerWidget {
       if (picked != null) {
         allowanceDate.value[index.value][id] = picked.day;
         sortAllowanceList();
-        SharedPreferences.getInstance().then((prefs) async => await setAllowanceData(prefs));
+        SharedPreferences.getInstance().then((prefs) async =>
+          await setAllowanceData(prefs)
+        );
       }
     }
 
@@ -388,7 +391,9 @@ class HomePage extends HookConsumerWidget {
       if (isItemInput.value) {
         allowanceItem.value[index.value][id] = inputItem.value;
         inputItem.value = "";
-        SharedPreferences.getInstance().then((prefs) async => await setAllowanceData(prefs));
+        SharedPreferences.getInstance().then((prefs) async =>
+          await setAllowanceData(prefs)
+        );
       }
       if (context.mounted) context.popPage();
     }
@@ -408,7 +413,9 @@ class HomePage extends HookConsumerWidget {
       if (isAmountInput.value) {
         allowanceAmnt.value[index.value][id] = inputAmount.value;
         inputAmount.value = 0.0;
-        SharedPreferences.getInstance().then((prefs) async => await setAllowanceData(prefs));
+        SharedPreferences.getInstance().then((prefs) async =>
+          await setAllowanceData(prefs)
+        );
       }
       if (context.mounted) context.popPage();
     }
@@ -424,7 +431,9 @@ class HomePage extends HookConsumerWidget {
         inputDay.value = 0;
         inputItem.value = "";
         inputAmount.value = 0.0;
-        SharedPreferences.getInstance().then((prefs) async => await setAllowanceData(prefs));
+        SharedPreferences.getInstance().then((prefs) async =>
+          await setAllowanceData(prefs)
+        );
       }
       if (context.mounted) context.popPage();
     }
@@ -464,7 +473,9 @@ class HomePage extends HookConsumerWidget {
       WidgetsBinding.instance.addPostFrameCallback((_) async {
         if (Platform.isIOS || Platform.isMacOS) initATTPlugin(context);
         isLoading.value = true;
-        SharedPreferences.getInstance().then((prefs) => getInitializeData(prefs));
+        SharedPreferences.getInstance().then((prefs) async =>
+          await getInitializeData(prefs)
+        );
         FlutterNativeSplash.remove();
       });
       return null;

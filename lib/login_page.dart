@@ -5,6 +5,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'admob_banner.dart';
+import 'auth_manager.dart';
 import 'firebase_manager.dart';
 import 'constant.dart';
 import 'extension.dart';
@@ -66,6 +67,7 @@ class LoginPage extends HookConsumerWidget {
     /// Provides access to common UI components and data management
     final commonWidget = CommonWidget(context);
     final loginWidget = LoginWidget(context);
+    final authManager = AuthManager(context);
     final firestoreManager = FirestoreManager(context, isLogin: isLogin);
 
     /// Allow saving local data to Firestore
@@ -92,8 +94,8 @@ class LoginPage extends HookConsumerWidget {
 
     /// Handle successful login process
     /// Manages post-login flow including data synchronization decisions
-    successLogin(FirebaseAuth auth) async {
-      login.setCurrentLogin((auth.currentUser != null));
+    successLogin(User? user) async {
+      login.setCurrentLogin((user != null));
       "isLogin: $isLogin".debugPrint();
       commonWidget.showSuccessSnackBar(context.loginSuccess());
       SharedPreferences.getInstance().then((prefs) async {
@@ -119,23 +121,21 @@ class LoginPage extends HookConsumerWidget {
     tryLogin() async {
       if (isEmailInput.value && isPasswordInput.value && isConfirmPassInput.value && !isLoading.value) {
         isLoading.value = true;
-        final auth = FirebaseAuth.instance;
-        auth.setLanguageCode(context.lang());
         try {
-          UserCredential result = await auth.signInWithEmailAndPassword(
+          UserCredential result = await authManager.signInWithEmailAndPassword(
             email: inputEmail.value,
             password: inputPassword.value
           );
           User? user = result.user;
           if (user != null && user.emailVerified) {
-            successLogin(auth);
+            successLogin(user);
           } else if (user != null) {
-            await user.sendEmailVerification();
+            await authManager.sendEmailVerification(user);
             if (context.mounted) commonWidget.showSuccessSnackBar(context.sentVerifiedEmail());
-            isLoading.value = false;
           }
         } on FirebaseAuthException catch (e) {
           if (context.mounted) commonWidget.showFailedSnackBar(context.loginFailed(), context.loginErrorCodeMessage(e.code, "login"));
+        } finally {
           isLoading.value = false;
         }
       }
@@ -146,26 +146,22 @@ class LoginPage extends HookConsumerWidget {
     trySignup() async {
       if (isEmailInput.value && isPasswordInput.value && isConfirmPassInput.value && !isLoading.value) {
         isLoading.value = true;
-        final auth = FirebaseAuth.instance;
-        auth.setLanguageCode(context.lang());
-        context.lang().debugPrint();
         try {
-          UserCredential result = await auth.createUserWithEmailAndPassword(
+          UserCredential result = await authManager.createUserWithEmailAndPassword(
             email: inputEmail.value,
             password: inputPassword.value,
           );
           User? user = result.user;
           if (user != null) {
-            await user.sendEmailVerification();
+            await authManager.sendEmailVerification(user);
             if (context.mounted) commonWidget.showSuccessSnackBar(context.sentVerifiedEmail());
             await Future.delayed(Duration(seconds: 2)).then((_) => isSignUp.value = false);
-            isLoading.value = false;
           } else {
             if (context.mounted) commonWidget.showFailedSnackBar(context.sendMailError(), context.signupErrorMessage());
-            isLoading.value = false;
           }
         } on FirebaseAuthException catch (e) {
           if (context.mounted) commonWidget.showFailedSnackBar(context.signupFailed(), context.loginErrorCodeMessage(e.code, "signup"));
+        } finally {
           isLoading.value = false;
         }
       }
@@ -176,16 +172,12 @@ class LoginPage extends HookConsumerWidget {
     tryPasswordReset() async {
       if (isEmailInput.value && !isLoading.value) {
         isLoading.value = true;
-        final auth = FirebaseAuth.instance;
-        auth.setLanguageCode(context.lang());
-        context.lang().debugPrint();
         try {
-          await auth.sendPasswordResetEmail(email: inputEmail.value);
+          await authManager.sendPasswordResetEmail(inputEmail.value);
           if (context.mounted) commonWidget.showSuccessSnackBar(context.sentPassResetMail());
-          isLoading.value = false;
-          if (context.mounted) context.popPage();
         } on FirebaseAuthException catch (e) {
           if (context.mounted) commonWidget.showFailedSnackBar(context.sendMailError(), context.loginErrorCodeMessage(e.code, ""));
+        } finally {
           isLoading.value = false;
           if (context.mounted) context.popPage();
         }

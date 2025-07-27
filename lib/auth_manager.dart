@@ -1,31 +1,34 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:sweet_easy_pocket/extension.dart';
 
 class AuthManager {
 
-  static final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final BuildContext context;
+
+  AuthManager(this.context);
 
   /// Get current user
-  static User? get currentUser => _auth.currentUser;
-
+  User? get currentUser => _auth.currentUser;
   /// Check login status
-  static bool get isLoggedIn => currentUser != null;
-
+  bool get isLoggedIn => currentUser != null;
   /// Get current user ID
-  static String? get currentUserId => currentUser?.uid;
+  String? get currentUserId => currentUser?.uid;
 
-  /// Get current user email
-  static String? get currentUserEmail => currentUser?.email;
-
+  /// Set Language Code
+  Future<void> setLanguageCode() async {
+    await _auth.setLanguageCode(context.lang());
+    if (context.mounted) "languageCode: ${context.lang()}".debugPrint();
+  }
 
   /// Sign in with email and password
-  static Future<UserCredential> signInWithEmailAndPassword({
+  Future<UserCredential> signInWithEmailAndPassword({
     required String email,
     required String password,
-    String? languageCode,
   }) async {
-    if (languageCode != null) {
-      _auth.setLanguageCode(languageCode);
-    }
+    await setLanguageCode();
+    "signInWithEmailAndPassword".debugPrint();
     return await _auth.signInWithEmailAndPassword(
       email: email,
       password: password,
@@ -33,14 +36,12 @@ class AuthManager {
   }
 
   /// Create user with email and password
-  static Future<UserCredential> createUserWithEmailAndPassword({
+  Future<UserCredential> createUserWithEmailAndPassword({
     required String email,
     required String password,
-    String? languageCode,
   }) async {
-    if (languageCode != null) {
-      _auth.setLanguageCode(languageCode);
-    }
+    await setLanguageCode();
+    "createUserWithEmailAndPassword".debugPrint();
     return await _auth.createUserWithEmailAndPassword(
       email: email,
       password: password,
@@ -48,39 +49,32 @@ class AuthManager {
   }
 
   /// Send password reset email
-  static Future<void> sendPasswordResetEmail({
-    required String email,
-    String? languageCode,
-  }) async {
-    if (languageCode != null) {
-      _auth.setLanguageCode(languageCode);
-    }
+  Future<void> sendPasswordResetEmail(String email) async {
+    "sendPasswordResetEmail".debugPrint();
+    await setLanguageCode();
     await _auth.sendPasswordResetEmail(email: email);
   }
 
   /// Send email verification
-  static Future<void> sendEmailVerification() async {
-    User? user = currentUser;
+  Future<void> sendEmailVerification(User? user) async {
+    "sendEmailVerification".debugPrint();
     if (user != null && !user.emailVerified) {
       await user.sendEmailVerification();
     }
   }
 
   /// Sign out
-  static Future<void> signOut() async => await _auth.signOut();
+  Future<void> signOut() async {
+    "signOut".debugPrint();
+    await _auth.signOut();
+  }
 
   /// Delete account
-  static Future<void> deleteAccount() async {
+  Future<void> deleteAccount() async {
     User? user = currentUser;
     if (user != null) {
+      "deleteAccount".debugPrint();
       await user.delete();
     }
   }
-
-  /// Listen to authentication state changes
-  static Stream<User?> get authStateChanges => _auth.authStateChanges();
-
-  /// Listen to user changes
-  static Stream<User?> get userChanges => _auth.userChanges();
-
 }

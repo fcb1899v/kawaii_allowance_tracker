@@ -378,67 +378,67 @@ extension StringExt on String {
   }
 
   // SharedPreferences setter methods
-  setSharedPrefString(SharedPreferences prefs, String value) {
+  void setSharedPrefString(SharedPreferences prefs, String value) {
     "${replaceAll("Key","")}: $value".debugPrint();
     prefs.setString(this, value);
   }
-  setSharedPrefDouble(SharedPreferences prefs, double value) {
+  void setSharedPrefDouble(SharedPreferences prefs, double value) {
     "${replaceAll("Key","")}: $value".debugPrint();
     prefs.setDouble(this, value);
   }
-  setSharedPrefInt(SharedPreferences prefs, int value) {
+  void setSharedPrefInt(SharedPreferences prefs, int value) {
     "${replaceAll("Key","")}: $value".debugPrint();
     prefs.setInt(this, value);
   }
-  setSharedPrefBool(SharedPreferences prefs, bool value) {
+  void setSharedPrefBool(SharedPreferences prefs, bool value) {
     "${replaceAll("Key","")}: $value".debugPrint();
     prefs.setBool(this, value);
   }
-  
+
   // SharedPreferences getter methods
-  getSharedPrefString(SharedPreferences prefs, String defaultString) {
+  String getSharedPrefString(SharedPreferences prefs, String defaultString) {
     "${replaceAll("Key","")}: ${prefs.getString(this) ?? defaultString}".debugPrint();
     return prefs.getString(this) ?? defaultString;
   }
-  getSharedPrefDouble(SharedPreferences prefs, double defaultDouble) {
+  double getSharedPrefDouble(SharedPreferences prefs, double defaultDouble) {
     "${replaceAll("Key","")}: ${prefs.getDouble(this) ?? defaultDouble}".debugPrint();
     return prefs.getDouble(this) ?? defaultDouble;
   }
-  getSharedPrefInt(SharedPreferences prefs, int defaultInt) {
+  int getSharedPrefInt(SharedPreferences prefs, int defaultInt) {
     "${replaceAll("Key","")}: ${prefs.getInt(this) ?? defaultInt}".debugPrint();
     return prefs.getInt(this) ?? defaultInt;
   }
-  getSharedPrefBool(SharedPreferences prefs, bool defaultBool) {
+  bool getSharedPrefBool(SharedPreferences prefs, bool defaultBool) {
     "${replaceAll("Key","")}: ${prefs.getBool(this) ?? defaultBool}".debugPrint();
     return prefs.getBool(this) ?? defaultBool;
   }
-  
+
   // List getter methods for SharedPreferences
-  getIntList(SharedPreferences prefs, int maxIndex) {
+  List<int> getIntList(SharedPreferences prefs, int maxIndex) {
     "${replaceAll("Key","")}: ${List.generate(maxIndex + 1, (i) => prefs.getInt("$this$i") ?? 1)}".debugPrint();
     return List.generate(maxIndex + 1, (i) => prefs.getInt("$this$i") ?? 1);
   }
-  getDoubleList(SharedPreferences prefs, int maxIndex) {
+  List<double> getDoubleList(SharedPreferences prefs, int maxIndex) {
     "${replaceAll("Key","")}: ${List.generate(maxIndex + 1, (i) => prefs.getDouble("$this$i") ?? 0.0)}".debugPrint();
     return List.generate(maxIndex + 1, (i) => prefs.getDouble("$this$i") ?? 0.0);
   }
   
   // Allowance data getter methods
-  getAllowanceDate(SharedPreferences prefs, int maxIndex, List<int> allowanceDate) {
+  List<List<int>> getAllowanceDate(SharedPreferences prefs, int maxIndex, List<int> allowanceDate) {
     List<List<int>> data = List.generate(maxIndex + 1, (i) =>
       List.generate(allowanceDate[i], (j) => prefs.getInt("$this${i}_$j") ?? 0)
     );
     "AllowanceDate: $data".debugPrint();
     return data;
   }
-  getAllowanceItem(SharedPreferences prefs, int maxIndex, List<int> allowanceItem) {
+  List<List<String>> getAllowanceItem(SharedPreferences prefs, int maxIndex, List<int> allowanceItem) {
     List<List<String>> data = List.generate(maxIndex + 1, (i) =>
       List.generate(allowanceItem[i], (j) => prefs.getString("$this${i}_$j") ?? "")
     );
     "AllowanceItem: $data".debugPrint();
     return data;
   }
-  getAllowanceAmnt(SharedPreferences prefs, int maxIndex, List<int> allowanceAmnt) {
+  List<List<double>> getAllowanceAmnt(SharedPreferences prefs, int maxIndex, List<int> allowanceAmnt) {
     List<List<double>> data = List.generate(maxIndex + 1, (i) =>
       List.generate(allowanceAmnt[i], (j) => prefs.getDouble("$this${i}_$j") ?? 0.0)
     );
@@ -505,8 +505,8 @@ extension StringExt on String {
       "${toThisDate(index).month.toString().addZero()}/${toThisDate(index).year}";
   String stringThisYear(int index) =>
       "${toThisDate(index).year}";
-  String stringThisMonthDay(int index, int day) =>
-      (day > 0 && day < toThisDate(index).month.lastDay(toThisDate(index).year) + 1) ? "${toThisDate(index).month}/${day.toString().addZero()}": "-";
+  String stringThisDay(int index, int day) =>
+      (day > 0 && day < toThisDate(index).month.lastDay(toThisDate(index).year) + 1) ? day.toString().addZero(): "-";
   
   // Navigation color methods
   Color yearPlusMinusColor(bool isPlus, int index, int maxIndex) =>
@@ -664,7 +664,7 @@ extension ListMapExt on List<Map> {
   }
 }
 
-/// List<double> extensions for calculations and chart data
+/// List_double extensions for calculations and chart data
 extension ListDoubleExt on List<double> {
 
   // Financial calculations
@@ -692,7 +692,7 @@ extension ListDoubleExt on List<double> {
     calcAssets(maxIndex, initialAssets).setDoubleList(prefs, "spendsKey");
     return calcAssets(maxIndex, initialAssets);
   }
-  setDoubleList(SharedPreferences prefs, String key) {
+  void setDoubleList(SharedPreferences prefs, String key) {
     for (var i = 0; i < length; i++) {
       prefs.setDouble("$key$i", this[i]);
     }
@@ -716,7 +716,7 @@ extension ListDoubleExt on List<double> {
       List.generate(12, (int i) => FlSpot((i + 1).toDouble(), targetAssets));
 }
 
-/// List<AllowanceList> extensions for data extraction
+/// List_AllowanceList extensions for data extraction
 extension ListAllowanceListExt on List<AllowanceList> {
 
   // Extract data from allowance list
@@ -728,11 +728,11 @@ extension ListAllowanceListExt on List<AllowanceList> {
       List.generate(length, (i) => this[i].amnt);
 }
 
-/// List<int> extensions for SharedPreferences operations
+/// List_int extensions for SharedPreferences operations
 extension ListIntExt on List<int> {
 
   // Save integer list to SharedPreferences
-  setIntList(SharedPreferences prefs, String key) {
+  void setIntList(SharedPreferences prefs, String key) {
     for (var i = 0; i < length; i++) {
       prefs.setInt("$key$i", this[i]);
     }
@@ -740,7 +740,7 @@ extension ListIntExt on List<int> {
   }
 }
 
-/// List<List<double>> extensions for financial calculations
+/// List_List_double extensions for financial calculations
 extension ListListDoubleExt on List<List<double>> {
 
   // Calculate maximum index

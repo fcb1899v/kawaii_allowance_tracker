@@ -36,7 +36,7 @@ class FirestoreManager {
         // Save the data with merge option to preserve existing data
         await docRef.set({key: setValue}, SetOptions(merge: true));
         await docRef.set({"serverSaveDateTimeKey": currentDateTime}, SetOptions(merge: true));
-        await "serverSaveDateTimeKey".setSharedPrefInt(prefs, currentTime);
+        "serverSaveDateTimeKey".setSharedPrefInt(prefs, currentTime);
       } on FirebaseException catch (e) {
         '${e.code}: $e'.debugPrint();
         if (context.mounted) CommonWidget(context).showFailedSnackBar(context.storeDataFailed(), null);
@@ -55,8 +55,8 @@ class FirestoreManager {
     final prefs = await SharedPreferences.getInstance();
     final currentDateTime = DateTime.now().toDateTimeInt();
     // Save to local storage first
-    await key.setSharedPrefString(prefs, setValue);
-    await "localSaveDateTimeKey".setSharedPrefInt(prefs, currentDateTime);
+    key.setSharedPrefString(prefs, setValue);
+    "localSaveDateTimeKey".setSharedPrefInt(prefs, currentDateTime);
     // Sync to Firestore if context is still mounted
     if (context.mounted) await setDataFireStore(isFirstSaveFinish, key, setValue, currentDateTime);
   }
@@ -72,8 +72,8 @@ class FirestoreManager {
     final prefs = await SharedPreferences.getInstance();
     final currentDateTime = DateTime.now().toDateTimeInt();
     // Save to local storage first
-    await key.setSharedPrefDouble(prefs, setValue);
-    await "localSaveDateTimeKey".setSharedPrefInt(prefs, currentDateTime);
+    key.setSharedPrefDouble(prefs, setValue);
+    "localSaveDateTimeKey".setSharedPrefInt(prefs, currentDateTime);
     // Sync to Firestore if context is still mounted
     if (context.mounted) await setDataFireStore(isFirstSaveFinish, key, setValue, currentDateTime);
   }
@@ -91,10 +91,10 @@ class FirestoreManager {
     final prefs = await SharedPreferences.getInstance();
     final currentDateTime = DateTime.now().toDateTimeInt();
     // Save allowance data to local storage with JSON encoding
-    await "dateKey".setSharedPrefString(prefs, jsonEncode(allowanceDate));
-    await "itemKey".setSharedPrefString(prefs, jsonEncode(allowanceItem));
-    await "amntKey".setSharedPrefString(prefs, jsonEncode(allowanceAmnt));
-    await "localSaveDateTimeKey".setSharedPrefInt(prefs, currentDateTime);
+    "dateKey".setSharedPrefString(prefs, jsonEncode(allowanceDate));
+    "itemKey".setSharedPrefString(prefs, jsonEncode(allowanceItem));
+    "amntKey".setSharedPrefString(prefs, jsonEncode(allowanceAmnt));
+    "localSaveDateTimeKey".setSharedPrefInt(prefs, currentDateTime);
     // Save to Firestore if user is logged in and allowance data flag is true
     if (isLogin && isAllowData) {
       try {
@@ -106,7 +106,7 @@ class FirestoreManager {
         await docRef.set({"itemKey": jsonEncode(allowanceItem)}, SetOptions(merge: true));
         await docRef.set({"amntKey": jsonEncode(allowanceAmnt)}, SetOptions(merge: true));
         await docRef.set({"serverSaveDateTimeKey": currentDateTime}, SetOptions(merge: true));
-        await "serverSaveDateTimeKey".setSharedPrefInt(prefs, currentDateTime);
+        "serverSaveDateTimeKey".setSharedPrefInt(prefs, currentDateTime);
       } on FirebaseException catch (e) {
         '${e.code}: $e'.debugPrint();
         if (context.mounted) CommonWidget(context).showFailedSnackBar(context.storeDataFailed(), null);

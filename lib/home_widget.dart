@@ -567,7 +567,7 @@ class HomeWidget {
       },
       child: SizedBox(
         width: double.infinity,
-        child: Text(startDate.stringThisMonthDay(index, date),
+        child: Text(startDate.stringThisDay(index, date),
           style: TextStyle(
             color: amount.amountColor(),
             fontSize: context.spreadSheetFontSize(),
