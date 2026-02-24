@@ -11,9 +11,9 @@ import 'constant.dart';
 import 'extension.dart';
 import 'common_widget.dart';
 
-/// State notifier provider for login state management
+/// Notifier provider for login state management
 /// Manages the global login state across the application
-final loginProvider = StateNotifierProvider<LoginNotifier, LoginState>((ref) => LoginNotifier());
+final loginProvider = NotifierProvider<LoginNotifier, LoginState>(LoginNotifier.new);
 
 /// Immutable state class for login status
 /// Contains the current login state information
@@ -25,10 +25,12 @@ class LoginState {
   });
 }
 
-/// State notifier class for managing login state
+/// Notifier class for managing login state
 /// Provides methods to update the login state
-class LoginNotifier extends StateNotifier<LoginState> {
-  LoginNotifier() : super(const LoginState());
+class LoginNotifier extends Notifier<LoginState> {
+  @override
+  LoginState build() => const LoginState();
+
   void setCurrentLogin(bool isLogin) {
     state = LoginState(isLogin: isLogin);
   }
