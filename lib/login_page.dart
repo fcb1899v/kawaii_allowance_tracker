@@ -122,6 +122,10 @@ class LoginPage extends HookConsumerWidget {
     /// Validates input and handles authentication errors
     tryLogin() async {
       if (isEmailInput.value && isPasswordInput.value && isConfirmPassInput.value && !isLoading.value) {
+        if (!appCheckReady.value) {
+          if (context.mounted) commonWidget.showFailedSnackBar(context.appCheckFailed(), null);
+          return;
+        }
         isLoading.value = true;
         try {
           UserCredential result = await authManager.signInWithEmailAndPassword(
@@ -147,6 +151,10 @@ class LoginPage extends HookConsumerWidget {
     /// Creates new user account and sends verification email
     trySignup() async {
       if (isEmailInput.value && isPasswordInput.value && isConfirmPassInput.value && !isLoading.value) {
+        if (!appCheckReady.value) {
+          if (context.mounted) commonWidget.showFailedSnackBar(context.appCheckFailed(), null);
+          return;
+        }
         isLoading.value = true;
         try {
           UserCredential result = await authManager.createUserWithEmailAndPassword(

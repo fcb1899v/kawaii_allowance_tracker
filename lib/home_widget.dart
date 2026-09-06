@@ -28,8 +28,10 @@ class HomeWidget {
   PreferredSize homeAppBar({
     required bool isLogin,
     required bool isSummary,
+    required bool isAppCheckReady,
     required Function() onTapBack,
     required Function() onTapLogout,
+    required Function() onOpenMenu,
   }) => PreferredSize(
     preferredSize: Size.fromHeight(context.appBarHeight()),
     child: AppBar(
@@ -55,7 +57,10 @@ class HomeWidget {
       backgroundColor: purpleColor,
       bottom: commonWidget().appBarBottomLine(),
       actions: [
-        (!isSummary) ? PopupMenuButton(
+        // Hidden while App Check is down and nobody is signed in: this menu is
+        // the only way to the login screen, and signing in needs Firestore
+        (!isSummary && (isLogin || isAppCheckReady)) ? PopupMenuButton(
+          onOpened: onOpenMenu,
           onSelected: (_) => (isLogin) ? SharedPreferences.getInstance().then((prefs) => onTapLogout()) : context.pushPage("/l"),
           icon: Icon(moreIcon, color: whiteColor),
           initialValue: context.popupMenuText(isLogin),

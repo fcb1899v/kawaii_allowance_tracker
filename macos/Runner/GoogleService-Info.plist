@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>API_KEY</key>
+	<string>AIzaSyBSjuKK3tcv0jttLyp7PLDr1USl4M69BhY</string>
+	<key>GCM_SENDER_ID</key>
+	<string>1007812916712</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>nakajimamasao.appstudio.allowancetracker.kawaiiAllowanceTracker</string>
+	<key>PROJECT_ID</key>
+	<string>allowance-app-a2963</string>
+	<key>STORAGE_BUCKET</key>
+	<string>allowance-app-a2963.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:1007812916712:ios:ed8f2126feaa6cf69ce05d</string>
+</dict>
+</plist>

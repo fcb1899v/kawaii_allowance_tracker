@@ -64,6 +64,7 @@
   "inputConfirmPassHint": "Re-enter the password",
   "loginSuccess": "Login Successful",
   "loginFailed": "Login Failed",
+  "appCheckFailed": "Can't sign in. Check your connection.",
   "signupSuccess": "Signup Successful",
   "signupFailed": "Signup Failed",
   "logoutSuccess": "Logout Successful",

@@ -1,5 +1,5 @@
+import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -17,7 +17,6 @@ import 'extension.dart';
 import 'chart_page.dart';
 import 'home_widget.dart';
 import 'constant.dart';
-import 'main.dart';
 
 /// Main homepage widget for the allowance tracker application
 /// This widget manages the entire allowance tracking functionality including
@@ -77,11 +76,35 @@ class HomePage extends HookConsumerWidget {
     /// Provides access to common UI widgets and home-specific widgets
     final commonWidget = CommonWidget(context);
     final homeWidget = HomeWidget(context, isLogin: isLogin);
+    final isAppCheckReady = useValueListenable(appCheckReady);
+    // Coming back from background is the one moment the network can change
+    // without the app doing anything
+    useOnAppLifecycleStateChange((previous, current) {
+      if (current == AppLifecycleState.resumed) unawaited(refreshAppCheckReady());
+    });
 
     /// Manager instances for data operations
     /// Handles Firestore operations and data management
     final authManager = AuthManager(context);
     final firestoreManager = FirestoreManager(context, isLogin: isLogin);
+
+    /// Fill months that passed while the app was closed.
+    /// changeIndex only appends one month per tap, so a gap between the last
+    /// save and today leaves currentIndex pointing past the end of the lists
+    /// Returns true when it added months, so the caller can persist them.
+    /// Padding in memory alone left the chart reading the shorter list back
+    /// out of SharedPreferences and drawing a total that stopped months early
+    bool fillMissingMonths() {
+      final target = startDate.value.currentIndex();
+      if (target < 0 || allowanceAmnt.value.length > target) return false;
+      while (allowanceAmnt.value.length <= target) {
+        allowanceDate.value.add([0]);
+        allowanceItem.value.add([""]);
+        allowanceAmnt.value.add([0.0]);
+      }
+      maxIndex.value = allowanceAmnt.value.calcMaxIndex();
+      return true;
+    }
 
     /// Reset login state and clear local data permissions
     /// Called when user logs out or account is deleted
@@ -131,6 +154,7 @@ class HomePage extends HookConsumerWidget {
     /// Set allowance data in local storage and update calculations
     /// Saves data to SharedPreferences and recalculates all derived values
     setAllowanceData(prefs) async {
+      unawaited(refreshAppCheckReady());
       await firestoreManager.setAllowanceDataFirestore(isAllowData.value[0], allowanceDate.value, allowanceItem.value, allowanceAmnt.value);
       maxIndex.value = allowanceAmnt.value.calcMaxIndex();
       listNumber.value = allowanceAmnt.value.calcListNumber();
@@ -186,8 +210,8 @@ class HomePage extends HookConsumerWidget {
             allowanceDate.value = data.getFirestoreDate(prefs);
             allowanceItem.value = data.getFirestoreItem(prefs);
             allowanceAmnt.value = data.getFirestoreAmnt(prefs);
-            maxIndex.value = allowanceAmnt.value.calcMaxIndex();
-            index.value = startDate.value.currentIndex();
+            if (fillMissingMonths()) await setAllowanceData(prefs);
+            index.value = startDate.value.currentIndex().clamp(0, maxIndex.value);
             listNumber.value = allowanceAmnt.value.calcListNumber();
             percent.value = allowanceAmnt.value.calcPercent(maxIndex.value);
             balance.value = allowanceAmnt.value.calcBalance(maxIndex.value);
@@ -220,8 +244,8 @@ class HomePage extends HookConsumerWidget {
       allowanceDate.value = "dateKey".getSharedPrefString(prefs, "[[0]]").toString().toListListDate();
       allowanceItem.value = "itemKey".getSharedPrefString(prefs, "[[""]]").toString().toListListItem();
       allowanceAmnt.value = "amntKey".getSharedPrefString(prefs, "[[0.0]]").toString().toListListAmnt();
-      maxIndex.value = allowanceAmnt.value.calcMaxIndex();
-      index.value = startDate.value.currentIndex();
+      if (fillMissingMonths()) await setAllowanceData(prefs);
+      index.value = startDate.value.currentIndex().clamp(0, maxIndex.value);
       listNumber.value = allowanceAmnt.value.calcListNumber();
       percent.value = allowanceAmnt.value.calcPercent(maxIndex.value);
       balance.value = allowanceAmnt.value.calcBalance(maxIndex.value);
@@ -284,9 +308,10 @@ class HomePage extends HookConsumerWidget {
     /// Toggle between summary view and detailed list view
     /// Updates view state and recalculates data for summary display
     changeSummary() {
+      unawaited(refreshAppCheckReady());
       isSummary.value = !isSummary.value;
       maxIndex.value = allowanceAmnt.value.calcMaxIndex();
-      index.value = startDate.value.currentIndex();
+      index.value = startDate.value.currentIndex().clamp(0, maxIndex.value);
       "isSummary: ${isSummary.value}".debugPrint();
     }
 
@@ -471,7 +496,6 @@ class HomePage extends HookConsumerWidget {
     /// Handles app startup, ATT plugin initialization, and data loading
     useEffect(() {
       WidgetsBinding.instance.addPostFrameCallback((_) async {
-        if (Platform.isIOS || Platform.isMacOS) initATTPlugin(context);
         isLoading.value = true;
         SharedPreferences.getInstance().then((prefs) async =>
           await getInitializeData(prefs)
@@ -490,6 +514,8 @@ class HomePage extends HookConsumerWidget {
         appBar: homeWidget.homeAppBar(
           isLogin: isLogin,
           isSummary: isSummary.value,
+          isAppCheckReady: isAppCheckReady,
+          onOpenMenu: () => unawaited(refreshAppCheckReady()),
           onTapBack: () => isSummary.value = false,
           onTapLogout: () => SharedPreferences.getInstance().then((prefs) => logout(prefs)),
         ),

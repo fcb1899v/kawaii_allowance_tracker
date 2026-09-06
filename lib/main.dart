@@ -1,25 +1,28 @@
 import 'dart:async';
 import 'dart:io';
-import 'package:app_tracking_transparency/app_tracking_transparency.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'l10n/app_localizations.dart' show AppLocalizations;
 import 'firebase_options.dart';
-import 'extension.dart';
 import 'chart_page.dart';
-import 'common_widget.dart';
 import 'constant.dart';
+import 'firebase_manager.dart';
 import 'homepage.dart';
 import 'login_page.dart';
 
 /// Main application entry point
 /// Initializes all required services and configurations before launching the app
+// No ATT call here. On iOS the UMP form shows Google's IDFA explainer and then
+// raises the system ATT prompt itself, so asking again from the app put a second
+// explainer in front of a user who had already answered. Removed in NEO first;
+// see 03_Developer/technical/2026-08-25_elevatorneo_att_gate_removal.md
 Future<void> main() async {
   /// Initialize Flutter binding and preserve splash screen
   /// Ensures proper initialization of Flutter engine and keeps splash screen visible
@@ -46,6 +49,16 @@ Future<void> main() async {
   await dotenv.load(fileName: "assets/.env");
   /// Initialize Firebase services
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  /// App Check, because this app reads and writes Cloud Firestore and uses
+  /// Firebase Auth. Both are products App Check can enforce; Analytics is not.
+  await FirebaseAppCheck.instance.activate(
+    providerAndroid: androidAppCheckProvider,
+    providerApple: appleAppCheckProvider,
+  );
+  await FirebaseAppCheck.instance.setTokenAutoRefreshEnabled(true);
+  /// Ask for a token now. activate() above only registers the provider, so
+  /// without this nothing knows whether App Check works until a call fails
+  await refreshAppCheckReady();
   /// Launch the application with Riverpod provider scope
   runApp(const ProviderScope(child: MyApp()));
   /// Initialize Google Mobile Ads
@@ -88,31 +101,4 @@ class MyApp extends StatelessWidget {
     );
 }
 
-/// App Tracking Transparency initialization
-/// Handles iOS privacy compliance for tracking authorization
-/// Requests user permission for app tracking on iOS devices
-Future<void> initATTPlugin(BuildContext context) async {
-  final commonWidget = CommonWidget(context);
-  /// Check current tracking authorization status
-  final status = await AppTrackingTransparency.trackingAuthorizationStatus;
-  /// Show permission request dialog if status is not determined
-  if (status == TrackingStatus.notDetermined && context.mounted) {
-    await showDialog(context: context,
-      builder: (context) => AlertDialog(
-        title: commonWidget.alertTitleText(context.appTitle()),
-        content: Text(context.thisApp()),
-        actions: [
-          CommonWidget(context).alertJudgeButton(context.ok(),
-            color: purpleColor,
-            onTap: () => context.popPage(),
-          )
-        ],
-      ),
-    );
-    /// Add delay before requesting authorization
-    await Future.delayed(const Duration(milliseconds: 200));
-    /// Request tracking authorization from user
-    await AppTrackingTransparency.requestTrackingAuthorization();
-  }
-}
 

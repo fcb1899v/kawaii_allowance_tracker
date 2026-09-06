@@ -1,0 +1,44 @@
+{
+  "firestore": {
+    "rules": "firestore.rules"
+  },
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "allowance-app-a2963",
+          "appId": "1:1007812916712:android:5ea44633f7d1a0769ce05d",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "ios": {
+        "default": {
+          "projectId": "allowance-app-a2963",
+          "appId": "1:1007812916712:ios:4985d87ba7f2fdf29ce05d",
+          "uploadDebugSymbols": false,
+          "fileOutput": "ios/Runner/GoogleService-Info.plist"
+        }
+      },
+      "macos": {
+        "default": {
+          "projectId": "allowance-app-a2963",
+          "appId": "1:1007812916712:ios:ed8f2126feaa6cf69ce05d",
+          "uploadDebugSymbols": false,
+          "fileOutput": "macos/Runner/GoogleService-Info.plist"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "allowance-app-a2963",
+          "configurations": {
+            "android": "1:1007812916712:android:5ea44633f7d1a0769ce05d",
+            "ios": "1:1007812916712:ios:4985d87ba7f2fdf29ce05d",
+            "macos": "1:1007812916712:ios:ed8f2126feaa6cf69ce05d",
+            "web": "1:1007812916712:web:85ae8fe7073508559ce05d",
+            "windows": "1:1007812916712:web:8d4efa9b60cfed269ce05d"
+          }
+        }
+      }
+    }
+  }
+}

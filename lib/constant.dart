@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:firebase_app_check/firebase_app_check.dart';
 
 /// Input validation and formatting constants
 const int inputMoneyMaxLength = 8;
@@ -92,3 +95,45 @@ const Color blueColor = Color.fromRGBO(0, 192, 255, 1);          //#00c0ff
 const Color lightBlueColor = Color.fromRGBO(0, 255, 255, 1);     //#00ffff
 const List<Color> chartColorList = [pinkColor, purpleColor, blueColor];
 
+
+// --- App Check ---
+// Debug token: register the same value in Firebase Console -> App Check -> Manage debug tokens
+// Release iOS uses DeviceCheck rather than App Attest, which can fail and still
+// hand back a placeholder token that the backend rejects.
+// The debug tokens come from .env, not from source. This repository is public,
+// and a registered debug token lets anyone mint a valid App Check token for this
+// app, which is exactly what App Check exists to prevent. kDebugMode keeps the
+// value out of the shipped binary, but it does not keep it out of the published
+// source.
+//
+// Android and iOS are separate App Check apps and each has its own token, so one
+// shared constant would have left the iOS debug build failing App Check.
+// Register both under Firebase Console -> App Check -> Manage debug tokens, or:
+//   firebase appcheck:debugtokens:create <token> --app <appId> --display-name <name>
+// The values are recorded in the private company repo, not here.
+final androidAppCheckProvider = kDebugMode
+    ? AndroidDebugProvider(debugToken: dotenv.env['APPCHECK_DEBUG_TOKEN_ANDROID'])
+    : const AndroidPlayIntegrityProvider();
+final appleAppCheckProvider = kDebugMode
+    ? AppleDebugProvider(debugToken: dotenv.env['APPCHECK_DEBUG_TOKEN_IOS'])
+    : const AppleDeviceCheckProvider();
+
+// --- AdMob demo ad units ---
+//
+// Google publishes these and they are the same for every developer, so they are
+// constants here rather than .env entries: they are not secret, and keeping them
+// in source means a missing .env key can no longer break a debug build.
+// Production unit IDs stay in .env, because those are ours.
+// https://developers.google.com/admob/android/test-ads
+// https://developers.google.com/admob/ios/test-ads  (checked 2026-09-02)
+// The banner in this app is adaptive, and Google lists a separate demo unit for
+// adaptive banners, shared by the anchored and inline variants. The fixed size
+// units (Android 6300978111, iOS 2934735716) only ever serve the 320x50
+// creative, so every adaptive height measured against them came back at the
+// 320x50 ratio no matter what size was requested
+const String androidBannerTestId = "ca-app-pub-3940256099942544/9214589741";
+const String iosBannerTestId = "ca-app-pub-3940256099942544/2435281174";
+const String androidRewardedTestId = "ca-app-pub-3940256099942544/5224354917";
+const String iosRewardedTestId = "ca-app-pub-3940256099942544/1712485313";
+const String androidInterstitialTestId = "ca-app-pub-3940256099942544/1033173712";
+const String iosInterstitialTestId = "ca-app-pub-3940256099942544/4411468910";

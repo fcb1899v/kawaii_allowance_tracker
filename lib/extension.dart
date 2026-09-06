@@ -229,6 +229,7 @@ extension ContextExt on BuildContext {
   String weakPassword() => AppLocalizations.of(this)!.weakPassword;
   String loginSuccess() => AppLocalizations.of(this)!.loginSuccess;
   String loginFailed() => AppLocalizations.of(this)!.loginFailed;
+  String appCheckFailed() => AppLocalizations.of(this)!.appCheckFailed;
   String logoutSuccess() => AppLocalizations.of(this)!.logoutSuccess;
   String logoutFailed() => AppLocalizations.of(this)!.logoutFailed;
   String signupSuccess() => AppLocalizations.of(this)!.signupSuccess;

@@ -1,5 +1,6 @@
 // ignore: unused_import
 import 'package:intl/intl.dart' as intl;
+
 import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
@@ -199,6 +200,9 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get loginFailed => 'ログイン失敗';
+
+  @override
+  String get appCheckFailed => 'ログインできません。通信を確認してください。';
 
   @override
   String get signupSuccess => 'ユーザー登録成功';

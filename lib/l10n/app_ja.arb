@@ -1,6 +1,5 @@
 {
   "@@locale": "ja",
-
   "appTitle": "かわいいおこづかいちょう",
   "thisApp": "かんたんにおこづかいがかんりできるアプリです",
   "list": "リスト",
@@ -59,6 +58,7 @@
   "tryDeleteAccount": "アカウントを削除しますか？",
   "loginSuccess": "ログイン成功",
   "loginFailed": "ログイン失敗",
+  "appCheckFailed": "ログインできません。通信を確認してください。",
   "signupSuccess": "ユーザー登録成功",
   "signupFailed": "ユーザー登録失敗",
   "logoutSuccess": "ログアウト成功",
