@@ -18,9 +18,8 @@ import 'chart_page.dart';
 import 'home_widget.dart';
 import 'constant.dart';
 
-/// Main homepage widget for the allowance tracker application
-/// This widget manages the entire allowance tracking functionality including
-/// data storage, user authentication, and UI interactions
+/// Main homepage widget: owns data storage, user authentication and the
+/// allowance tracking UI.
 class HomePage extends HookConsumerWidget {
   const HomePage({super.key});
 
@@ -88,12 +87,8 @@ class HomePage extends HookConsumerWidget {
     final authManager = AuthManager(context);
     final firestoreManager = FirestoreManager(context, isLogin: isLogin);
 
-    /// Fill months that passed while the app was closed.
-    /// changeIndex only appends one month per tap, so a gap between the last
-    /// save and today leaves currentIndex pointing past the end of the lists
-    /// Returns true when it added months, so the caller can persist them.
-    /// Padding in memory alone left the chart reading the shorter list back
-    /// out of SharedPreferences and drawing a total that stopped months early
+    /// Fills months that passed while the app was closed and returns true if any
+    /// were added so the caller persists them; padding memory alone broke the chart
     bool fillMissingMonths() {
       final target = startDate.value.currentIndex();
       if (target < 0 || allowanceAmnt.value.length > target) return false;

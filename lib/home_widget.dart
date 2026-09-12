@@ -8,9 +8,8 @@ import 'extension.dart';
 import 'constant.dart';
 import 'common_widget.dart';
 
-/// Home widget class that provides UI components for the allowance tracker
-/// Contains all the widget methods for the main homepage including AppBar, Drawer,
-/// data table, and floating action buttons
+/// Widget builders for the homepage: AppBar, Drawer, data table and
+/// floating action buttons.
 class HomeWidget {
 
   final BuildContext context;

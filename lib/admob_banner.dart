@@ -7,9 +7,8 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'extension.dart';
 import 'constant.dart';
 
-/// AdBannerWidget - Displays AdMob banner advertisements
-/// Handles ad loading, consent management, and platform-specific ad unit IDs
-/// Uses Google Mobile Ads SDK for banner ad implementation
+/// AdBannerWidget: displays an AdMob banner and handles consent and loading.
+/// Ad unit IDs are platform-specific.
 class AdBannerWidget extends HookWidget {
   const AdBannerWidget({super.key});
 
@@ -28,9 +27,8 @@ class AdBannerWidget extends HookWidget {
     /// Banner Unit ID - Returns the appropriate ad unit ID based on platform and build mode
     /// Platform-specific logic for iOS/Android and debug/release modes
     String bannerUnitId() =>
-      // Production units come from .env because they are ours; the demo units
-      // are Google's published constants, so a missing .env key can no longer
-      // break a debug build
+      // Production units come from .env; demo units are Google's published constants,
+      // so a missing .env key cannot break a debug build
       (!kDebugMode && Platform.isIOS) ? dotenv.get("IOS_BANNER_UNIT_ID"):
       (!kDebugMode && Platform.isAndroid) ? dotenv.get("ANDROID_BANNER_UNIT_ID"):
       (Platform.isIOS) ? iosBannerTestId:
@@ -82,17 +80,13 @@ class AdBannerWidget extends HookWidget {
       bannerAd.value = adBanner;
     }
 
-    /// The single gate for the ad request. canRequestAds is the SDK's own
-    /// verdict: it already weighs the region, the TCF consent string and
-    /// Additional Consent, so the app must not read ConsentStatus and decide
-    /// for itself. A false answer also covers "the SDK could not tell", and
-    /// letting that through is what serving without consent looks like in the EEA
+    /// Single gate for the ad request. canRequestAds is the SDK's own verdict (region,
+    /// TCF, Additional Consent); false also covers "could not tell", so never bypass it
     Future<void> requestAdIfAllowed() async {
       if (isAdRequested.value) return;
       if (!await ConsentInformation.instance.canRequestAds()) return;
-      // Both callers below race across that await. Claiming the request happens
-      // with no await in between, so whoever resumes second always sees the
-      // flag and no second BannerAd is created for the same slot
+      // Both callers race across that await. The claim happens with no await in
+      // between, so the second to resume sees the flag and makes no second BannerAd
       if (isAdRequested.value) return;
       isAdRequested.value = true;
       await loadAdBanner();
@@ -109,10 +103,8 @@ class AdBannerWidget extends HookWidget {
         //   testIdentifiers: testIdentifiers,
         // ),
       ), () async {
-        // The SDK decides whether a form is required, loads it and presents it.
-        // The old flow called loadAdBanner from the consent form callback, which
-        // fires when the form closes no matter what the user chose, so a user
-        // who declined still got an ad request
+        // The SDK decides whether a form is required and shows it. Do not load the ad
+        // from the form callback: it fires on close even when the user declined
         await ConsentForm.loadAndShowConsentFormIfRequired((formError) async {
           if (formError != null) {
             "formError: ${formError.errorCode}: ${formError.message}".debugPrint();
@@ -120,9 +112,8 @@ class AdBannerWidget extends HookWidget {
           await requestAdIfAllowed();
         });
       }, (FormError error) async {
-        // The update failed, but consent given in an earlier session still
-        // stands and canRequestAds can still say yes. Stopping here would throw
-        // away impressions the SDK would have allowed
+        // The update failed, but consent from an earlier session still stands and
+        // canRequestAds can still say yes, so do not stop here
         "error: ${error.errorCode}: ${error.message}".debugPrint();
         await requestAdIfAllowed();
       });

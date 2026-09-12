@@ -17,12 +17,8 @@ import 'firebase_manager.dart';
 import 'homepage.dart';
 import 'login_page.dart';
 
-/// Main application entry point
-/// Initializes all required services and configurations before launching the app
-// No ATT call here. On iOS the UMP form shows Google's IDFA explainer and then
-// raises the system ATT prompt itself, so asking again from the app put a second
-// explainer in front of a user who had already answered. Removed in NEO first;
-// see 03_Developer/technical/2026-08-25_elevatorneo_att_gate_removal.md
+/// Main application entry point: initializes services before launching the app.
+// No ATT call here: the UMP form raises the system ATT prompt itself on iOS
 Future<void> main() async {
   /// Initialize Flutter binding and preserve splash screen
   /// Ensures proper initialization of Flutter engine and keeps splash screen visible

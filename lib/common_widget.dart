@@ -2,9 +2,8 @@ import 'package:flutter/material.dart';
 import 'constant.dart';
 import 'extension.dart';
 
-/// CommonWidget class - Provides reusable UI components and styling utilities
-/// Contains methods for creating consistent UI elements across the application
-/// Handles background decorations, text styles, buttons, and alert components
+/// Reusable UI components and styling utilities shared across the app:
+/// backgrounds, text styles, buttons, and alert parts.
 class CommonWidget {
 
   final BuildContext context;
@@ -34,10 +33,7 @@ class CommonWidget {
     ]
   );
 
-  /// Custom Accent Text Style - Creates styled text with custom font and shadow
-  /// Parameters:
-  /// - fontSize: Size of the text
-  /// - isDark: Whether to use dark shadow effect
+  /// Accent text style with the custom font and a light or dark shadow.
   TextStyle customAccentTextStyle(double fontSize, bool isDark) => TextStyle(
     color: whiteColor,
     fontSize: fontSize,
@@ -66,9 +62,7 @@ class CommonWidget {
     ),
   );
 
-  /// Text Field Underline Border - Creates custom underline border for text fields
-  /// Parameters:
-  /// - color: Color of the underline border
+  /// Underline border for text fields in the given color.
   UnderlineInputBorder textFieldUnderLineBorder(Color color) => UnderlineInputBorder(
     borderSide: BorderSide(
       color: color,
@@ -85,9 +79,7 @@ class CommonWidget {
     fontWeight: FontWeight.bold,
   );
 
-  /// Text Field Hint Style - Creates styling for placeholder text in input fields
-  /// Parameters:
-  /// - fontSize: Size of the hint text
+  /// Hint text style for input fields.
   TextStyle textFieldHintStyle(double fontSize) => TextStyle(
     color: transpLightBlackColor,
     fontSize: fontSize,
@@ -95,18 +87,14 @@ class CommonWidget {
     fontWeight: FontWeight.bold,
   );
 
-  /// Custom Shadow - Creates shadow effect for text and UI elements
-  /// Parameters:
-  /// - isDark: Whether to use dark shadow (transparent black) or light shadow (purple)
+  /// Shadow for text and UI elements: transparent black when dark, purple otherwise.
   Shadow customShadow(BuildContext context, bool isDark) => Shadow(
     color: isDark ? transpBlackColor: purpleColor,
     blurRadius: context.shadowBlur(),
     offset: Offset(context.shadowOffset(), context.shadowOffset())
   );
 
-  /// Action Button Box Decoration - Creates circular button with shadow effect
-  /// Parameters:
-  /// - color: Background color of the button
+  /// Circular action button decoration with a shadow.
   BoxDecoration actionButtonBoxDecoration(Color color) => BoxDecoration(
     color: color,
     shape: BoxShape.circle,
@@ -117,11 +105,7 @@ class CommonWidget {
     )],
   );
 
-  /// Alert Judge Button - Creates a clickable text button for alerts
-  /// Parameters:
-  /// - text: Button text to display
-  /// - color: Text color
-  /// - onTap: Function to execute when button is tapped
+  /// Tappable text button used inside alert dialogs.
   Widget alertJudgeButton(String text, {
     required Color color,
     required void Function() onTap,
@@ -145,11 +129,7 @@ class CommonWidget {
     onTap: () => context.popPage(),
   );
 
-  /// Plus Minus Button - Creates circular navigation buttons for year/month navigation
-  /// Parameters:
-  /// - isPlus: Whether this is a forward (+) or backward (-) button
-  /// - color: Button background color
-  /// - onTap: Function to execute when button is tapped
+  /// Circular plus/minus button for year and month navigation.
   Widget plusMinusButton({
     required bool isPlus,
     required Color color,
@@ -168,10 +148,7 @@ class CommonWidget {
     ),
   );
 
-  /// Show Success Snack Bar - Displays a success message with thumbs up icon
-  /// Parameters:
-  /// - title: Success message to display
-  /// Uses white background with purple text and icon
+  /// Shows a success snack bar with a thumbs up icon.
   void showSuccessSnackBar(String title) => ScaffoldMessenger.of(context).showSnackBar(
     SnackBar(
       backgroundColor: whiteColor,
@@ -192,11 +169,7 @@ class CommonWidget {
     ),
   );
 
-  /// Show Failed Snack Bar - Displays an error message with info icon
-  /// Parameters:
-  /// - title: Error title to display
-  /// - message: Optional detailed error message
-  /// Uses white background with purple text and icon, supports multi-line messages
+  /// Shows an error snack bar with an info icon; [message] may span multiple lines.
   void showFailedSnackBar(String title, String? message) => ScaffoldMessenger.of(context).showSnackBar(
     SnackBar(
       backgroundColor: whiteColor,
@@ -228,10 +201,7 @@ class CommonWidget {
     ),
   );
 
-  /// Alert Title Text - Creates styled title text for alert dialogs
-  /// Parameters:
-  /// - title: Title text to display
-  /// Uses semi-transparent black color with bold weight and bottom margin
+  /// Bold title text for alert dialogs.
   Widget alertTitleText(String title) => Container(
     margin: EdgeInsets.only(bottom: alertTitleBottomMargin),
     child: Text(title,

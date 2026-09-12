@@ -152,14 +152,7 @@ class ChartWidget {
   /// Get CommonWidget instance for shared UI components
   CommonWidget commonWidget() => CommonWidget(context);
 
-  /// Summary Chart - Creates a line chart widget for displaying allowance data
-  /// Parameters:
-  /// - list: Data points to display on the chart
-  /// - color: Chart line color
-  /// - index: Current month index
-  /// - maxIndex: Maximum available month index
-  /// - startDate: Start date for date calculations
-  /// - unit: Currency unit for display
+  /// Builds the summary line chart of allowance data for the month at [index].
   Widget summaryChart(List<double> list, {
     required Color color,
     required int index,
