@@ -82,14 +82,31 @@ repository and back both up. A release built without this file falls back to the
 debug signing config, which produces an artifact Play rejects.
 
 ### 4. Firebase Configuration
-1. Create a Firebase project
-2. Enable Firestore, Authentication, and Analytics
-3. Place `google-services.json` (Android) and `GoogleService-Info.plist` (iOS)
-4. These files are tracked here. The Gradle plugin fails the Android build
-   without the json, and the Xcode project lists the plist in its Resources
-   phase, so excluding them only broke fresh clones. They carry the same
-   identifiers as `lib/firebase_options.dart`, which ship inside the app.
-   Real secrets stay out: the keystore and the environment file
+
+1. Create a Firebase project.
+2. Enable Cloud Firestore, Email/Password Authentication, and Analytics.
+3. Run `flutterfire configure`.
+   It writes `android/app/google-services.json`, `ios/Runner/GoogleService-Info.plist`, `lib/firebase_options.dart` and the `flutter` section of `firebase.json`.
+   **None of them are in git**: anything regenerable stays out, so a project's identifiers are never published for nothing.
+4. **Restore the `firestore` section of `firebase.json`.**
+   `flutterfire configure` writes only the `flutter` section, and that one line is what points `firebase deploy` at the rules this repository defines.
+   The whole file ends up like this, with the `flutter` block left exactly as the tool wrote it:
+
+   ```json
+   {
+     "firestore": { "rules": "firestore.rules" },
+     "flutter": { "...": "written by flutterfire configure; leave it alone" }
+   }
+   ```
+
+   `flutterfire configure` merges rather than overwrites, so running it again later keeps this section.
+5. Deploy the Firestore rules.
+   `firestore.rules` binds every read and write to the signed-in owner of `users/{uid}`, and the file itself explains what it does and does not cover.
+   ```bash
+   firebase deploy --only firestore:rules --project <PROJECT_ID>
+   ```
+6. Register the App Check providers: debug tokens for emulators and simulators, Play Integrity and DeviceCheck for release.
+   The app activates App Check at startup and asks for a token immediately (`lib/main.dart`), so a missing registration shows up at launch rather than on the first Firestore call.
 
 ### 5. Run the Application
 ```bash

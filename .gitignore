@@ -72,6 +72,16 @@ macos/Runner/GoogleService-Info.plist
 # Google through the secret scanning partner program, and the project was suspended
 # two days later. Run `flutterfire configure` after a fresh clone to regenerate it.
 lib/firebase_options.dart
+
+# firebase.json is regenerable too (2026-09-19). `flutterfire configure` writes
+# its flutter section and merges rather than overwrites, so the hand-written
+# firestore section survives a rerun; README section 4 carries a copy of it.
+firebase.json
+
+# Anything regenerable stays out (2026-09-19). `flutterfire configure` and the
+# Firebase console write these back, so tracking them only publishes the
+# project identifiers into a repository that is scanned automatically.
+ios/firebase_app_id_file.json
 # Not *.plist: that swept up ios/Flutter/AppFrameworkInfo.plist, which Flutter
 # needs to build and which carries no app specific values. Name the ones to hide.
 
