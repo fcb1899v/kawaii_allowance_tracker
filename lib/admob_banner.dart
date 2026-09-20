@@ -32,8 +32,8 @@ class AdBannerWidget extends HookWidget {
       (!kDebugMode && Platform.isIOS) ? dotenv.get("IOS_BANNER_UNIT_ID"):
       (!kDebugMode && Platform.isAndroid) ? dotenv.get("ANDROID_BANNER_UNIT_ID"):
       (Platform.isIOS) ? iosBannerTestId:
-      // Debug on Android used to fall through to the production unit, so
-      // development traffic landed on the live ad unit
+      // Debug on Android takes the test unit here; falling through to the
+      // production unit puts development traffic on the live ad unit
       androidBannerTestId;
 
     /// Load Ad Banner - Creates and loads a banner advertisement
