@@ -25,8 +25,8 @@ Future<bool> refreshAppCheckReady() async {
   // Once it has cleared it stays cleared; getToken would only return the cache
   if (appCheckReady.value) return true;
 
-  // Staged, not repeated: a stale cache needs a forced refresh, a provider that
-  // never initialised needs activating again
+  // Staged, not repeated: a stale cache needs a forced refresh.
+  // A provider that never initialised needs activating again.
   var token = await _appCheckToken(forceRefresh: false);
   if (!_isValidAppCheckJwt(token)) {
     token = await _appCheckToken(forceRefresh: true);

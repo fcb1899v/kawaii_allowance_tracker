@@ -54,8 +54,8 @@ class ChartPage extends HookConsumerWidget {
         allowanceAmnt.value = "amntKey".getSharedPrefString(prefs, "${[[0.0]]}").toString().toListListAmnt();
         // Calculate derived values for chart display
         maxIndex.value = allowanceAmnt.value.calcMaxIndex();
-        // Read only here, so clamp rather than pad: data saved months ago can
-        // leave currentIndex past the end of the lists
+        // Read only here, so clamp rather than pad.
+        // Data saved months ago can leave currentIndex past the end of the lists.
         index.value = startDate.value.currentIndex().clamp(0, maxIndex.value);
         listNumber.value = allowanceAmnt.value.calcListNumber();
         balance.value = allowanceAmnt.value.calcBalance(maxIndex.value);

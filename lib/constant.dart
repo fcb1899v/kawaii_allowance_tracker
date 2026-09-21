@@ -105,8 +105,8 @@ final appleAppCheckProvider = kDebugMode
     ? AppleDebugProvider(debugToken: dotenv.env['APPCHECK_DEBUG_TOKEN_IOS'])
     : const AppleDeviceCheckProvider();
 
-// --- AdMob demo ad units --- Google's published constants, so kept in source rather
-// than .env. Use the adaptive demo unit: the fixed-size one always serves 320x50
+// --- AdMob demo ad units --- Google's published constants, so kept in source, not .env.
+// Use the adaptive demo unit: the fixed-size one always serves 320x50
 const String androidBannerTestId = "ca-app-pub-3940256099942544/9214589741";
 const String iosBannerTestId = "ca-app-pub-3940256099942544/2435281174";
 const String androidRewardedTestId = "ca-app-pub-3940256099942544/5224354917";

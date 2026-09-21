@@ -76,8 +76,7 @@ class HomePage extends HookConsumerWidget {
     final commonWidget = CommonWidget(context);
     final homeWidget = HomeWidget(context, isLogin: isLogin);
     final isAppCheckReady = useValueListenable(appCheckReady);
-    // Coming back from background is the one moment the network can change
-    // without the app doing anything
+    // Resuming is the one moment the network can change without the app doing anything.
     useOnAppLifecycleStateChange((previous, current) {
       if (current == AppLifecycleState.resumed) unawaited(refreshAppCheckReady());
     });

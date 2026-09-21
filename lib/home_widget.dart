@@ -56,8 +56,8 @@ class HomeWidget {
       backgroundColor: purpleColor,
       bottom: commonWidget().appBarBottomLine(),
       actions: [
-        // Hidden while App Check is down and nobody is signed in: this menu is
-        // the only way to the login screen, and signing in needs Firestore
+        // Hidden while App Check is down and nobody is signed in.
+        // This menu is the only way to the login screen, and signing in needs Firestore.
         (!isSummary && (isLogin || isAppCheckReady)) ? PopupMenuButton(
           onOpened: onOpenMenu,
           onSelected: (_) => (isLogin) ? SharedPreferences.getInstance().then((prefs) => onTapLogout()) : context.pushPage("/l"),

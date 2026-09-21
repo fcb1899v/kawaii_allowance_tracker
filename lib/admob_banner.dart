@@ -19,28 +19,28 @@ class AdBannerWidget extends HookWidget {
     final adLoaded = useState(false);
     final adFailedLoading = useState(false);
     final bannerAd = useState<BannerAd?>(null);
-    // Ref, not state: the consent callbacks resolve after this widget can be
-    // gone, and writing to a disposed ValueNotifier asserts in debug
+    // Ref, not state: the consent callbacks resolve after this widget can be gone.
+    // Writing to a disposed ValueNotifier asserts in debug.
     final isAdRequested = useRef(false);
     // final testIdentifiers = ['2793ca2a-5956-45a2-96c0-16fafddc1a15'];
 
     /// Banner Unit ID - Returns the appropriate ad unit ID based on platform and build mode
     /// Platform-specific logic for iOS/Android and debug/release modes
     String bannerUnitId() =>
-      // Production units come from .env; demo units are Google's published constants,
-      // so a missing .env key cannot break a debug build
+      // Production units come from .env; demo units are Google's published constants.
+      // So a missing .env key cannot break a debug build.
       (!kDebugMode && Platform.isIOS) ? dotenv.get("IOS_BANNER_UNIT_ID"):
       (!kDebugMode && Platform.isAndroid) ? dotenv.get("ANDROID_BANNER_UNIT_ID"):
       (Platform.isIOS) ? iosBannerTestId:
-      // Debug on Android takes the test unit here; falling through to the
-      // production unit puts development traffic on the live ad unit
+      // Debug on Android takes the test unit here.
+      // Falling through to the production unit puts development traffic on the live ad unit.
       androidBannerTestId;
 
     /// Load Ad Banner - Creates and loads a banner advertisement
     /// Handles ad loading callbacks and retry logic for failed loads
     Future<void> loadAdBanner() async {
-      // largeBanner asked for a fixed 320x100 inside a box sized by admobWidth
-      // and admobHeight. Inline adaptive asks for that box's width and height
+      // largeBanner asked for a fixed 320x100 in a box sized by admobWidth and admobHeight.
+      // Inline adaptive asks for that box's width and height.
       final cap = context.admobHeight().toInt();
       final size = AdSize.getInlineAdaptiveBannerAdSize(
           context.admobWidth().toInt(), cap);
@@ -55,8 +55,8 @@ class AdBannerWidget extends HookWidget {
             // Mount first; the await below only feeds a debug line
             adLoaded.value = true;
             if (kDebugMode) {
-              // Requested and served together: neither alone separates the size
-              // asked for from the creative Google had to hand
+              // Log requested and served sizes together.
+              // Neither alone separates the size asked for from the creative Google served.
               final served = await (ad as BannerAd).getPlatformAdSize();
               'AdSize: ${size.width} x cap $cap / served: ${served?.width} x ${served?.height}'.debugPrint();
             }
@@ -85,8 +85,8 @@ class AdBannerWidget extends HookWidget {
     Future<void> requestAdIfAllowed() async {
       if (isAdRequested.value) return;
       if (!await ConsentInformation.instance.canRequestAds()) return;
-      // Both callers race across that await. The claim happens with no await in
-      // between, so the second to resume sees the flag and makes no second BannerAd
+      // Both callers race across that await.
+      // The claim has no await in between, so the second to resume sees the flag.
       if (isAdRequested.value) return;
       isAdRequested.value = true;
       await loadAdBanner();
@@ -103,8 +103,8 @@ class AdBannerWidget extends HookWidget {
         //   testIdentifiers: testIdentifiers,
         // ),
       ), () async {
-        // The SDK decides whether a form is required and shows it. Do not load the ad
-        // from the form callback: it fires on close even when the user declined
+        // The SDK decides whether a form is required and shows it.
+        // Do not load the ad from the form callback: it fires on close even if declined.
         await ConsentForm.loadAndShowConsentFormIfRequired((formError) async {
           if (formError != null) {
             "formError: ${formError.errorCode}: ${formError.message}".debugPrint();
@@ -112,8 +112,8 @@ class AdBannerWidget extends HookWidget {
           await requestAdIfAllowed();
         });
       }, (FormError error) async {
-        // The update failed, but consent from an earlier session still stands and
-        // canRequestAds can still say yes, so do not stop here
+        // The update failed, but earlier consent still stands and canRequestAds may say yes.
+        // So do not stop here.
         "error: ${error.errorCode}: ${error.message}".debugPrint();
         await requestAdIfAllowed();
       });

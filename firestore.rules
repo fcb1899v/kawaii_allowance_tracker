@@ -1,49 +1,26 @@
 rules_version = '2';
 
-// Sweet Easy Pocket (kawaii_allowance_tracker)
-//
-// The app stores one document per signed in user at users/{uid} and touches only
-// that document (lib/firebase_manager.dart:35, 103, 126). Sign in is email and
-// password (lib/login_page.dart:127, 152). Nothing else uses Firestore.
-//
-// App Check enforcement is configured in the Firebase console, not in this file.
-// These rules stand on their own with enforcement off.
-//
-// What these rules do and do not do:
-//
-//   DO      bind every read and write to the account that owns the document.
-//           Sign-in is email and password, so the uid is stable and identifies
-//           a person. That is the whole protection, and it is enough here.
-//   DO NOT  bound how much data one account stores. See isReasonableSize below.
-//
-// Contrast with railway_crossing, whose document id is a device identifier under
-// anonymous auth and cannot be bound to a uid at all
-// (03_Developer/technical/2026-09-03_railway_ticket_rules.md). This app has the
-// easier shape, and the rules should stay this short.
+// Sign-in is email and password (lib/login_page.dart, lib/auth_manager.dart), so the uid identifies a person and owner binding is the whole protection.
+// App Check enforcement is set in the Firebase console, and these rules do not depend on it.
 
 service cloud.firestore {
   match /databases/{database}/documents {
 
     match /users/{uid} {
-      // request.auth is null for unauthenticated callers, so the comparison
-      // fails and access stops there.
       allow read: if isOwner(uid);
 
-      // The app only ever writes its own document and never deletes it, so
-      // delete is closed rather than left to the same condition as write.
+      // The app never deletes its document, so delete is closed instead of sharing the write condition.
       allow create, update: if isOwner(uid) && isReasonableSize();
       allow delete: if false;
 
-      // Subcollections. The app does not use one today. Scoping it to the owner
-      // now means a future one works instead of silently hitting the deny below.
+      // The app has no subcollection today, and scoping one to the owner now keeps a future one from hitting the deny below.
       match /{document=**} {
         allow read, write: if isOwner(uid);
       }
     }
 
-    // Firestore rules do not cascade, so an unmatched path is already denied.
-    // Stating it means a later edit that adds a broad match has to remove this
-    // line on purpose.
+    // The app only touches users/{uid} (lib/firebase_manager.dart, lib/homepage.dart).
+    // Rules do not cascade, so this explicit deny makes a later broad match remove it on purpose.
     match /{document=**} {
       allow read, write: if false;
     }
@@ -54,18 +31,8 @@ function isOwner(uid) {
   return request.auth != null && request.auth.uid == uid;
 }
 
-// size() counts KEYS, not bytes. This does not stop an account being used as
-// storage: 64 keys holding one large string each still fits, and the only real
-// ceiling is Firestore's own 1 MiB per document.
-//
-// What it does stop is a write that carries a field set nobody wrote code for.
-// The app's payload is a handful of JSON encoded lists, so 64 is far above
-// normal use, and a write past it did not come from this app.
-//
-// Field NAMES are deliberately not restricted. setDataFireStore takes the key
-// as a parameter (lib/firebase_manager.dart:28) and callers pass different
-// ones, so an allow list written today breaks the app the next time a key is
-// added.
+// 64 keys is far above the app's handful of JSON lists, so it stops stray field sets but not large strings, since size() counts keys and 1 MiB is the real ceiling.
+// Field names are not allow-listed because setDataFireStore takes the key as a parameter (lib/firebase_manager.dart), so a new key would break the app.
 function isReasonableSize() {
   return request.resource.data.size() <= 64;
 }
