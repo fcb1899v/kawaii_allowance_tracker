@@ -19,8 +19,8 @@ dependencies:
 
   # Firebase
   firebase_auth: ^6.6.1
-  firebase_core: ^4.14.0
-  firebase_analytics: ^12.5.0
+  firebase_core: 4.14.0
+  firebase_analytics: 12.5.0
   cloud_firestore: ^6.9.0
   # App Check guards Cloud Firestore and Firebase Auth, which this app uses.
   # Analytics is not a protected product, so apps with only Analytics do not need it.
