@@ -150,7 +150,7 @@ assets/
 ## 📱 Supported Platforms
 
 - **Android**: API 24+ (`flutter.minSdkVersion`), compiled and targeted at API 37
-- **iOS**: iOS 15.0+ (`IPHONEOS_DEPLOYMENT_TARGET`)
+- **iOS**: iOS 15.0+ (the Runner target's `IPHONEOS_DEPLOYMENT_TARGET`; the project-level value is 17.0)
 
 ## 🔧 Development
 
